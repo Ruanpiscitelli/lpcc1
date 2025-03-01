@@ -244,10 +244,6 @@ const nextConfig = {
     },
     optimizeCss: true, // Otimização CSS
     optimisticClientCache: true, // Cache otimista no cliente
-    serverExternalPackages: [
-      // Pacotes grandes que devem permanecer no servidor
-      'sharp',
-    ],
   },
   
   // Configurações de compilação

@@ -78,10 +78,9 @@ const CriticalResourcesOptimizer = memo(() => {
     if ('loading' in HTMLImageElement.prototype) {
       document.documentElement.classList.add('lazy-loading-supported');
     } else {
-      // Polyfill para lazy loading em navegadores que não suportam
-      import('lazysizes').then(() => {
-        console.log('Lazysizes carregado como fallback');
-      });
+      // Remover o import dinâmico de lazysizes e usar uma solução mais simples
+      console.log('Navegador não suporta lazy loading nativo - usando alternativa');
+      // Você pode adicionar uma solução mais simples aqui se necessário
     }
   }, []);
 
