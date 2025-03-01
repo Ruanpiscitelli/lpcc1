@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
+import { usePathname } from 'next/navigation';
 import styles from '../styles/DesktopExitPopup.module.css';
 
 // Configurações do exit intent
@@ -10,6 +11,11 @@ const INACTIVITY_THRESHOLD = 60000; // 60 segundos de inatividade
 const SESSION_DURATION = 30000; // 30 segundos na página
 
 const DesktopExitPopup = () => {
+  const pathname = usePathname();
+  
+  // Se não estiver na página correta, retorna null imediatamente
+  if (pathname !== '/cf1-escrito') return null;
+  
   const [showPopup, setShowPopup] = useState(false);
   const [hasShownPopup, setHasShownPopup] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -20,7 +26,7 @@ const DesktopExitPopup = () => {
   const inactivityTimerRef = useRef(null);
   const sessionTimerRef = useRef(null);
 
-  // Verificar se o popup já foi mostrado nesta sessão
+  // Verificar se já foi mostrado
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setMounted(true);
@@ -29,53 +35,28 @@ const DesktopExitPopup = () => {
     }
   }, []);
 
-  // Função para mostrar o popup
+  const clearAllTimers = useCallback(() => {
+    if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+    if (sessionTimerRef.current) clearTimeout(sessionTimerRef.current);
+  }, []);
+
   const showExitPopup = useCallback(() => {
     if (!hasShownPopup && mounted) {
       setShowPopup(true);
       setHasShownPopup(true);
       sessionStorage.setItem('exitPopupShown', 'true');
-      
-      // Registrar evento de analytics (se disponível)
-      if (window.gtag) {
-        window.gtag('event', 'exit_popup_shown', {
-          'event_category': 'Engagement',
-          'event_label': 'Desktop Exit Popup'
-        });
-      }
-      
-      // Limpar todos os timers quando o popup é mostrado
       clearAllTimers();
     }
-  }, [hasShownPopup, mounted]);
+  }, [hasShownPopup, mounted, clearAllTimers]);
 
-  // Limpar todos os timers
-  const clearAllTimers = () => {
-    if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
-    if (sessionTimerRef.current) clearTimeout(sessionTimerRef.current);
-  };
-
-  // Fechar o popup
-  const closePopup = (action) => {
+  const closePopup = useCallback((action) => {
     setShowPopup(false);
-    
-    // Registrar evento de analytics (se disponível)
-    if (window.gtag) {
-      window.gtag('event', 'exit_popup_action', {
-        'event_category': 'Engagement',
-        'event_label': action
-      });
-    }
-  };
+  }, []);
 
-  // Lidar com o clique no botão de desconto
-  const handleDiscountClick = () => {
-    // Aqui você pode redirecionar para a página de checkout com desconto
-    // window.location.href = '/checkout?discount=SPECIAL20';
-    
-    // Para este exemplo, apenas fechamos o popup
+  const handleDiscountClick = useCallback(() => {
+    window.location.href = 'https://clkdmg.site/checkouts/ab-order-bump-x?src=t4-orderbump';
     closePopup('accepted_offer');
-  };
+  }, [closePopup]);
 
   // Detectar movimento do mouse para o topo da página (exit intent)
   const handleMouseMove = useCallback((e) => {
@@ -222,7 +203,7 @@ const DesktopExitPopup = () => {
     };
   }, [showPopup]);
 
-  // Não renderizar nada no servidor
+  // Não renderizar nada se não estiver montado
   if (!mounted) return null;
 
   // Renderizar o popup usando createPortal para garantir que ele seja renderizado no body
@@ -238,20 +219,20 @@ const DesktopExitPopup = () => {
         </button>
         
         <div className={styles.popupHeader}>
-          <h2 className={styles.exitPopupTitle}>Espere um momento!</h2>
-          <h3 className={styles.exitPopupSubtitle}>Temos uma oferta especial para você</h3>
+          <h2 className={styles.exitPopupTitle}>Espere um Momento!</h2>
+          <h3 className={styles.exitPopupSubtitle}>Não Perca Esta Oportunidade Única</h3>
         </div>
         
         <div className={styles.exitPopupText}>
-          <p>Antes de sair, queremos oferecer um desconto exclusivo só para você.</p>
+          <p>Antes de sair, você precisa conhecer esta oportunidade especial que está transformando a vida de milhares de pessoas.</p>
           
           <div className={styles.offerHighlight}>
-            <span className={styles.discount}>20% OFF</span>
-            <p>Em sua primeira compra</p>
-            <span className={styles.timeLimit}>Válido por 24 horas</span>
+            <span className={styles.discount}>OFERTA ESPECIAL</span>
+            <p>Sistema Automático de Renda</p>
+            <span className={styles.timeLimit}>Vagas Limitadas</span>
           </div>
           
-          <p>Aproveite esta oportunidade única para experimentar nosso produto com um desconto especial!</p>
+          <p>Junte-se aos milhares de brasileiros que já estão gerando R$5.000 por semana com apenas 3 cliques, usando nossa tecnologia que mapeia o mercado 24h por dia.</p>
         </div>
         
         <div className={styles.exitPopupButtons}>
@@ -259,13 +240,13 @@ const DesktopExitPopup = () => {
             className={styles.continueButton} 
             onClick={handleDiscountClick}
           >
-            Quero aproveitar o desconto!
+            QUERO COMEÇAR AGORA!
           </button>
           <button 
             className={styles.noThanksButton} 
             onClick={() => closePopup('declined_offer')}
           >
-            Não, obrigado
+            Não, prefiro perder esta oportunidade
           </button>
         </div>
       </div>

@@ -454,3 +454,208 @@ export const optimizeThirdPartyScripts = (scripts) => {
     }));
   });
 };
+
+/**
+ * Carrega CSS crítico inline
+ * @param {string} cssPath - Caminho para o arquivo CSS crítico
+ * @param {boolean} [removeAfterLoad=false] - Se deve remover o estilo após carregar o CSS externo
+ */
+export const loadCriticalCSS = (cssPath, removeAfterLoad = false) => {
+  if (typeof window === 'undefined') return;
+  
+  // Criar um ID único para o estilo crítico baseado no caminho
+  const styleId = `critical-css-${cssPath.replace(/[^\w]/g, '-')}`;
+  
+  // Verificar se já existe
+  if (document.getElementById(styleId)) return;
+  
+  // Carregar o CSS através de fetch
+  fetch(cssPath)
+    .then(response => response.text())
+    .then(cssText => {
+      // Criar elemento de estilo e inserir o CSS
+      const style = document.createElement('style');
+      style.id = styleId;
+      style.textContent = cssText;
+      document.head.appendChild(style);
+      
+      // Se devemos remover após carregar o CSS externo
+      if (removeAfterLoad) {
+        // Carregar o CSS externo e remover o inline quando carregar
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = cssPath;
+        link.onload = () => {
+          // Remover o estilo inline quando o CSS externo carregar
+          const criticalStyle = document.getElementById(styleId);
+          if (criticalStyle) {
+            criticalStyle.remove();
+          }
+        };
+        document.head.appendChild(link);
+      }
+    })
+    .catch(error => {
+      console.error('Erro ao carregar CSS crítico:', error);
+    });
+};
+
+/**
+ * Melhora a prioridade de carregamento de recursos críticos
+ * @param {Object} options - Opções de configuração
+ * @param {boolean} [options.preloadFonts=true] - Se deve precarregar fontes
+ * @param {boolean} [options.preloadLCP=true] - Se deve precarregar imagem LCP
+ * @param {boolean} [options.preconnectDomains=true] - Se deve fazer preconnect para domínios
+ */
+export const optimizeResourceLoading = (options = {}) => {
+  if (typeof window === 'undefined') return;
+  
+  const {
+    preloadFonts = true,
+    preloadLCP = true,
+    preconnectDomains = true
+  } = options;
+  
+  // Detectar se o dispositivo é de alta velocidade
+  const isHighPerformanceConnection = () => {
+    const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    if (!connection) return true; // Assumir conexão rápida se não puder detectar
+    
+    // Verificar tipo de conexão ou largura de banda estimada
+    return (
+      connection.type === 'wifi' || 
+      connection.type === 'ethernet' || 
+      connection.downlink >= 5 || // 5 Mbps ou mais
+      connection.effectiveType === '4g'
+    );
+  };
+  
+  const highPerformance = isHighPerformanceConnection();
+  
+  // Otimizar o carregamento com base na performance da conexão
+  if (preconnectDomains) {
+    // Domínios críticos para preconnect
+    const criticalDomains = [
+      'https://images.converteai.net',
+      'https://cdn.converteai.net'
+    ];
+    
+    // Adicionar apenas os domínios mais importantes se a conexão for lenta
+    const domainsToConnect = highPerformance 
+      ? criticalDomains.concat([
+          'https://www.googletagmanager.com',
+          'https://www.google-analytics.com'
+        ])
+      : criticalDomains;
+    
+    // Criar links de preconnect
+    domainsToConnect.forEach(domain => {
+      // Verificar se já existe
+      if (!document.querySelector(`link[rel="preconnect"][href="${domain}"]`)) {
+        const link = document.createElement('link');
+        link.rel = 'preconnect';
+        link.href = domain;
+        link.crossOrigin = 'anonymous';
+        document.head.appendChild(link);
+      }
+      
+      // DNS prefetch como fallback
+      if (!document.querySelector(`link[rel="dns-prefetch"][href="${domain}"]`)) {
+        const dnsLink = document.createElement('link');
+        dnsLink.rel = 'dns-prefetch';
+        dnsLink.href = domain;
+        document.head.appendChild(dnsLink);
+      }
+    });
+  }
+  
+  // Precarregar fontes críticas
+  if (preloadFonts && highPerformance) {
+    const criticalFonts = [
+      '/fonts/your-critical-font.woff2'
+    ];
+    
+    criticalFonts.forEach(fontUrl => {
+      if (!document.querySelector(`link[rel="preload"][href="${fontUrl}"]`)) {
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.href = fontUrl;
+        link.as = 'font';
+        link.type = 'font/woff2';
+        link.crossOrigin = 'anonymous';
+        document.head.appendChild(link);
+      }
+    });
+  }
+  
+  // Precarregar imagem LCP
+  if (preloadLCP) {
+    const lcpImageUrl = 'https://images.converteai.net/9f42948f-1e82-4960-b793-0f0c80350dc8/players/6759dd77d07a5ff5c7ca43f4/thumbnail.jpg';
+    
+    if (!document.querySelector(`link[rel="preload"][href="${lcpImageUrl}"]`)) {
+      const link = document.createElement('link');
+      link.rel = 'preload';
+      link.href = lcpImageUrl;
+      link.as = 'image';
+      link.type = 'image/jpeg';
+      link.fetchPriority = 'high';
+      document.head.appendChild(link);
+    }
+  }
+};
+
+/**
+ * Minificação de chunks de JavaScript em runtime
+ * Ajuda a reduzir o tamanho do chunk 517 e outros
+ */
+export const optimizeChunks = () => {
+  if (typeof window === 'undefined') return;
+  
+  // Verificar se o navegador suporta module/nomodule
+  const supportsModules = 'noModule' in document.createElement('script');
+  
+  // Adicionar atributo `type="module"` para scripts que podem ser carregados como módulos
+  // Isso pode ajudar a reduzir o tamanho dos chunks, pois os navegadores modernos
+  // podem fazer tree-shaking mais eficiente com módulos ES
+  if (supportsModules) {
+    // Encontrar scripts que podem ser convertidos para módulos
+    const scripts = document.querySelectorAll('script[src*="/_next/static/chunks/"]');
+    scripts.forEach(script => {
+      if (!script.type && !script.noModule) {
+        // Adicionar type="module" para browsers modernos
+        const moduleScript = document.createElement('script');
+        moduleScript.type = 'module';
+        moduleScript.src = script.src;
+        moduleScript.async = script.async;
+        moduleScript.defer = true;
+        
+        // Criar um fallback para navegadores antigos
+        const noModuleScript = document.createElement('script');
+        noModuleScript.noModule = true;
+        noModuleScript.src = script.src;
+        noModuleScript.async = script.async;
+        
+        // Substituir o script original
+        script.parentNode.replaceChild(moduleScript, script);
+        document.head.appendChild(noModuleScript);
+      }
+    });
+  }
+  
+  // Otimizar a ordem de carregamento de chunks com prioridade baixa
+  const lowPriorityChunks = ['517-b8105c30972b0de5.js'];
+  lowPriorityChunks.forEach(chunkName => {
+    const script = document.querySelector(`script[src*="${chunkName}"]`);
+    if (script) {
+      // Configurar o script para baixa prioridade
+      script.setAttribute('fetchpriority', 'low');
+      script.async = true;
+      script.defer = true;
+      
+      // Se possível, mover para o fim do body
+      if (script.parentNode !== document.body) {
+        document.body.appendChild(script);
+      }
+    }
+  });
+};

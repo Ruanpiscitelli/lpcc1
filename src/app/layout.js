@@ -48,20 +48,29 @@ export const metadata = {
   other: {
     'apple-mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-status-bar-style': 'default',
-    'format-detection': 'telephone=no',
-  },
+  }
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="pt-BR">
       <head>
-        {/* Preconnect apenas para domínios críticos */}
+        {/* Preload do CSS crítico */}
+        <link
+          rel="preload"
+          href="/_next/static/css/critical.css"
+          as="style"
+          fetchPriority="high"
+        />
+        <link 
+          rel="stylesheet" 
+          href="/_next/static/css/critical.css"
+          fetchPriority="high"
+        />
+        
+        {/* Preconnect apenas para domínios críticos - reduzido para melhorar desempenho */}
         <link rel="preconnect" href="https://images.converteai.net" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://images.converteai.net" />
-        
-        <link rel="preconnect" href="https://scripts.converteai.net" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://scripts.converteai.net" />
         
         {/* Preload apenas para o recurso mais crítico do LCP */}
         <link 
@@ -81,7 +90,7 @@ export default function RootLayout({ children }) {
         <meta name="color-scheme" content="light" />
         <meta name="theme-color" content="#ffffff" />
         
-        {/* Manifesto para PWA */}
+        {/* Manifesto para PWA - carregado após o first paint */}
         <link rel="manifest" href="/manifest.json" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -107,32 +116,3 @@ export default function RootLayout({ children }) {
   );
 }
 
-'use client';
-
-import { useEffect } from 'react';
-
-export function SafeApplyPolyfill() {
-  useEffect(() => {
-    // Proteção contra erros de "apply" em undefined
-    const originalApply = Function.prototype.apply;
-    Function.prototype.apply = function(thisArg, argsArray) {
-      try {
-        if (this === undefined || this === null) {
-          console.warn('Tentativa de chamar apply em função undefined/null');
-          return undefined;
-        }
-        return originalApply.call(this, thisArg, argsArray);
-      } catch (error) {
-        console.error('Erro na chamada apply:', error);
-        return undefined;
-      }
-    };
-    
-    return () => {
-      // Restaurar o comportamento original ao desmontar
-      Function.prototype.apply = originalApply;
-    };
-  }, []);
-  
-  return null;
-}

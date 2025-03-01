@@ -122,6 +122,7 @@ const ClientScripts = memo(() => {
   const pathname = usePathname();
   const [isPageLoaded, setIsPageLoaded] = useState(false);
   const [isLCPLoaded, setIsLCPLoaded] = useState(false);
+  const [isFIDReady, setIsFIDReady] = useState(false); // Novo estado para o First Input Delay
   const bodyRef = useRef(null);
   
   // Função para pré-conectar a domínios críticos
@@ -135,7 +136,12 @@ const ClientScripts = memo(() => {
       'https://www.google-analytics.com'
     ];
     
-    domains.forEach(domain => {
+    // Pré-conectar apenas aos domínios mais essenciais primeiro
+    const criticalDomains = domains.slice(0, 2);
+    const nonCriticalDomains = domains.slice(2);
+    
+    // Pré-conectar imediatamente aos domínios críticos
+    criticalDomains.forEach(domain => {
       const link = document.createElement('link');
       link.rel = 'preconnect';
       link.href = domain;
@@ -147,6 +153,39 @@ const ClientScripts = memo(() => {
       dnsLink.href = domain;
       document.head.appendChild(dnsLink);
     });
+    
+    // Adiar a pré-conexão para domínios não críticos
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(() => {
+        nonCriticalDomains.forEach(domain => {
+          const link = document.createElement('link');
+          link.rel = 'preconnect';
+          link.href = domain;
+          link.crossOrigin = 'anonymous';
+          document.head.appendChild(link);
+          
+          const dnsLink = document.createElement('link');
+          dnsLink.rel = 'dns-prefetch';
+          dnsLink.href = domain;
+          document.head.appendChild(dnsLink);
+        });
+      }, { timeout: 2000 });
+    } else {
+      setTimeout(() => {
+        nonCriticalDomains.forEach(domain => {
+          const link = document.createElement('link');
+          link.rel = 'preconnect';
+          link.href = domain;
+          link.crossOrigin = 'anonymous';
+          document.head.appendChild(link);
+          
+          const dnsLink = document.createElement('link');
+          dnsLink.rel = 'dns-prefetch';
+          dnsLink.href = domain;
+          document.head.appendChild(dnsLink);
+        });
+      }, 200);
+    }
   }, []);
   
   // Configurar Partytown e carregar scripts após o carregamento da página
@@ -156,9 +195,17 @@ const ClientScripts = memo(() => {
     // Pré-conectar a domínios críticos imediatamente
     preconnectToCriticalDomains();
     
-    // Configurar Partytown se ainda não estiver carregado
+    // Configurar Partytown se ainda não estiver carregado - adiar para após o primeiro paint
     if (!isPartytownLoaded()) {
-      setupPartytown();
+      if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(() => {
+          setupPartytown();
+        }, { timeout: 3000 });
+      } else {
+        setTimeout(() => {
+          setupPartytown();
+        }, 1000);
+      }
     }
     
     // Observar quando o corpo da página estiver visível
@@ -188,16 +235,34 @@ const ClientScripts = memo(() => {
       
       lcpObserver.observe({ type: 'largest-contentful-paint', buffered: true });
       
+      // Observar FID (First Input Delay)
+      const fidObserver = new PerformanceObserver((entryList) => {
+        const entries = entryList.getEntries();
+        if (entries.length > 0) {
+          setIsFIDReady(true);
+          fidObserver.disconnect();
+        }
+      });
+      
+      fidObserver.observe({ type: 'first-input', buffered: true });
+      
       // Fallback: se o LCP não for detectado em 5 segundos, considerar como carregado
       setTimeout(() => {
         setIsLCPLoaded(true);
         lcpObserver.disconnect();
       }, 5000);
+      
+      // Fallback para FID
+      setTimeout(() => {
+        setIsFIDReady(true);
+        fidObserver.disconnect();
+      }, 6000);
     } else {
       // Fallback para navegadores que não suportam PerformanceObserver
       window.addEventListener('load', () => {
         setTimeout(() => {
           setIsLCPLoaded(true);
+          setIsFIDReady(true);
         }, 1000);
       });
     }
@@ -207,11 +272,11 @@ const ClientScripts = memo(() => {
     };
   }, [preconnectToCriticalDomains]);
   
-  // Carregar scripts não críticos após o LCP
+  // Carregar scripts não críticos após o LCP e FID
   useEffect(() => {
     if (isLCPLoaded) {
-      // Configurar scripts para carregar após o LCP
-      const nonCriticalScripts = [
+      // Scripts menos críticos após o LCP
+      const lcpScripts = [
         {
           src: 'https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX',
           options: {
@@ -219,33 +284,48 @@ const ClientScripts = memo(() => {
             async: true,
             defer: true
           }
-        },
-        {
-          src: 'https://connect.facebook.net/en_US/fbevents.js',
-          options: {
-            id: 'fb-pixel-script',
-            async: true,
-            defer: true
-          }
         }
       ];
       
-      // Carregar scripts não críticos após o LCP
-      loadScriptsAfterLCP(nonCriticalScripts);
+      // Carregar scripts logo após o LCP
+      loadScriptsAfterLCP(lcpScripts);
+      
+      // Scripts de menor prioridade apenas após FID
+      if (isFIDReady) {
+        const fidScripts = [
+          {
+            src: 'https://connect.facebook.net/en_US/fbevents.js',
+            options: {
+              id: 'fb-pixel-script',
+              async: true,
+              defer: true
+            }
+          }
+        ];
+        
+        // Carregar após o usuário poder interagir
+        setTimeout(() => {
+          loadScriptsAfterLCP(fidScripts);
+        }, 50);
+      }
     }
-  }, [isLCPLoaded]);
+  }, [isLCPLoaded, isFIDReady]);
   
   return (
     <>
-      {/* Carregar scripts apenas quando a página estiver carregada */}
+      {/* Carregar componentes de forma progressiva baseado nos eventos de performance */}
       {isPageLoaded && (
         <>
           <PlayerFallbackScript />
           {isLCPLoaded && (
             <>
               <GoogleTagManagerScript />
-              <ServiceWorkerRegistration />
-              <GTMIframe />
+              {isFIDReady && (
+                <>
+                  <ServiceWorkerRegistration />
+                  <GTMIframe />
+                </>
+              )}
             </>
           )}
         </>

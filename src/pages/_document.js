@@ -213,6 +213,13 @@ class MyDocument extends Document {
           <noscript>
             <link rel="stylesheet" href="/styles/main.css" />
           </noscript>
+          
+          {/* Carregue o smartplayer de forma otimizada */}
+          <script
+            type="text/partytown"
+            src="URL_DO_SEU_SMARTPLAYER"
+            strategy="lazyOnload"
+          />
         </Head>
         <body>
           <Main />
