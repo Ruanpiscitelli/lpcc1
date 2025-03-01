@@ -1,0 +1,21 @@
+---
+description: Routing and Pages, Content Management,   Styling
+globs: 
+alwaysApply: true
+---
+Routing and Pages
+  - Utilize Astro's file-based routing system in the src/pages/ directory.
+  - Implement dynamic routes using [...slug].astro syntax.
+  - Use getStaticPaths() for generating static pages with dynamic routes.
+  - Implement proper 404 handling with a 404.astro page.
+
+  Content Management
+  - Use Markdown (.md) or MDX (.mdx) files for content-heavy pages.
+  - Leverage Astro's built-in support for frontmatter in Markdown files.
+  - Implement content collections for organized content management.
+
+  Styling
+  - Use Astro's scoped styling with <style> tags in .astro files.
+  - Leverage global styles when necessary, importing them in layouts.
+  - Utilize CSS preprocessing with Sass or Less if required.
+  - Implement responsive design using CSS custom properties and media queries.

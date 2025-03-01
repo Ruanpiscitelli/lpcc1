@@ -1,0 +1,176 @@
+/* Estilos para a página de transcrição */
+.transcriptContainer {
+  width: 100%;
+  max-width: 800px;
+  margin: 30px auto;
+  background-color: white;
+  border-radius: 8px;
+  padding: 30px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.transcriptHeader {
+  text-align: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.transcriptHeader h2 {
+  font-family: Helvetica, "Helvetica Neue Lt Std", Arial, sans-serif;
+  font-weight: 700;
+  font-size: 28px;
+  color: #d20000;
+  margin-bottom: 15px;
+}
+
+.transcriptSubheader {
+  font-family: Helvetica, "Helvetica Neue Lt Std", Arial, sans-serif;
+  font-size: 16px;
+  color: #555;
+}
+
+.videoLink {
+  color: #2c7cb0;
+  text-decoration: underline;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+.videoLink:hover {
+  color: #1a5980;
+}
+
+.transcriptContent {
+  font-family: Helvetica, "Helvetica Neue Lt Std", Arial, sans-serif;
+  color: #333;
+  line-height: 1.6;
+}
+
+.transcriptContent h3 {
+  font-weight: 700;
+  font-size: 22px;
+  color: #333;
+  margin: 30px 0 15px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.transcriptContent h3:first-child {
+  margin-top: 0;
+}
+
+.transcriptContent p {
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+.stepsList {
+  margin: 15px 0 20px 25px;
+  padding: 0;
+}
+
+.stepsList li {
+  margin-bottom: 12px;
+  padding-left: 5px;
+}
+
+.stepsList li strong {
+  color: #d20000;
+}
+
+.ctaContainer {
+  margin-top: 40px;
+  text-align: center;
+}
+
+.ctaButton {
+  display: inline-block;
+  background: linear-gradient(180deg, #d20000 0%, #a70000 100%);
+  color: white;
+  font-family: Helvetica, "Helvetica Neue Lt Std", Arial, sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  padding: 15px 30px;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.blueButton {
+  background: linear-gradient(180deg, #0066cc 0%, #004d99 100%);
+  margin: 10px 0;
+  width: 100%;
+  max-width: 500px;
+  text-align: center;
+}
+
+.installmentText {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 15px 0;
+  color: #333;
+  text-align: center;
+}
+
+.ctaButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+.ctaButton:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .transcriptContainer {
+    padding: 20px;
+    margin: 20px auto;
+    width: 90%;
+  }
+  
+  .transcriptHeader h2 {
+    font-size: 24px;
+  }
+  
+  .transcriptContent h3 {
+    font-size: 20px;
+  }
+  
+  .transcriptContent p,
+  .transcriptSubheader {
+    font-size: 15px;
+  }
+  
+  .ctaButton {
+    font-size: 16px;
+    padding: 12px 25px;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .transcriptContainer {
+    padding: 15px;
+  }
+  
+  .transcriptHeader h2 {
+    font-size: 22px;
+  }
+  
+  .transcriptContent h3 {
+    font-size: 18px;
+  }
+  
+  .transcriptContent p,
+  .transcriptSubheader {
+    font-size: 14px;
+  }
+  
+  .stepsList {
+    margin-left: 20px;
+  }
+}

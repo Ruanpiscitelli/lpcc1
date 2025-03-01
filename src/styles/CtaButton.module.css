@@ -1,0 +1,131 @@
+.ctaContainer {
+  margin-top: 40px;
+  margin-bottom: 40px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.singleCtaContainer {
+  margin: 25px 0;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+}
+
+.buttonLink {
+  text-decoration: none;
+  display: block;
+  width: 100%;
+  max-width: 500px;
+  margin: 10px 0;
+}
+
+.button {
+  position: relative;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  outline-offset: 4px;
+  transition: filter 250ms;
+  user-select: none;
+  touch-action: manipulation;
+  width: 100%;
+}
+
+.shadow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  background: hsl(0deg 0% 0% / 0.35);
+  will-change: transform;
+  transform: translateY(2px);
+  transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+}
+
+.edge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  background: linear-gradient(
+    to left,
+    hsl(217deg 100% 20%) 0%,
+    hsl(217deg 100% 30%) 8%,
+    hsl(217deg 100% 30%) 92%,
+    hsl(217deg 100% 20%) 100%
+  );
+}
+
+.front {
+  display: block;
+  position: relative;
+  padding: 16px 32px;
+  border-radius: 12px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: white;
+  background: linear-gradient(180deg, #0066cc 0%, #004d99 100%);
+  will-change: transform;
+  transform: translateY(-4px);
+  transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+  text-align: center;
+}
+
+.button:hover {
+  filter: brightness(110%);
+}
+
+.button:hover .front {
+  transform: translateY(-6px);
+  transition: transform 250ms cubic-bezier(.3, .7, .4, 1.5);
+}
+
+.button:active .front {
+  transform: translateY(-2px);
+  transition: transform 34ms;
+}
+
+.button:hover .shadow {
+  transform: translateY(4px);
+  transition: transform 250ms cubic-bezier(.3, .7, .4, 1.5);
+}
+
+.button:active .shadow {
+  transform: translateY(1px);
+  transition: transform 34ms;
+}
+
+.button:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.installmentText {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 15px 0;
+  color: #333;
+  text-align: center;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .front {
+    font-size: 1.1rem;
+    padding: 14px 28px;
+  }
+}
+
+@media (max-width: 480px) {
+  .front {
+    font-size: 1rem;
+    padding: 12px 24px;
+  }
+} 

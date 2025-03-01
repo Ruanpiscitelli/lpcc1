@@ -1,0 +1,50 @@
+---
+description: Performance Optimization
+globs: 
+alwaysApply: true
+---
+Client-side JavaScript - Strategic Minimization
+
+Avoid unnecessary client-side JavaScript; leverage Astro's static HTML whenever possible
+For each interactive component, question: "Is this interactivity truly necessary?"
+Prefer transforming interactive elements into static ones when functionality allows
+Use metrics like Total Blocking Time (TBT) and Time to Interactive (TTI) to monitor JS impact
+
+Hydration Directives - Precise Usage
+
+client:load: Only use for critical components requiring immediate interactivity after loading (e.g., login forms, main navigation menus)
+client:idle: Implement for secondary components that can wait (e.g., below-the-fold product carousels, comment widgets)
+client:visible: Apply to heavy components outside the initial viewport (e.g., interactive maps, complex calculators, 3D viewers)
+client:media: Configure for responsive interactivity based on breakpoints (e.g., client:media="(min-width: 768px)")
+client:only: Reserve for specific cases where SSR is not desirable (e.g., widgets heavily dependent on DOM)
+
+Image Loading - Complete Optimization
+
+Implement Astro's <Image /> component for automatic format optimization (WebP/AVIF)
+Configure appropriate width, height, and densities for different devices
+Define loading strategy: loading="lazy" for below-the-fold images
+Implement srcset to serve size-optimized images for different screen sizes
+Use low-quality image placeholders (LQIP) to improve LCP (Largest Contentful Paint)
+
+Asset Optimization
+
+Configure image compression with specific quality settings (e.g., 80% for JPG, 90% for WebP)
+Implement automatic code-splitting via rollup.config.js
+Use astro:assets for inline SVG processing when appropriate
+Configure asset caching with suitable max-age for different types (e.g., 1 year for hashed assets, 1 day for HTML)
+Implement Critical CSS extraction to improve First Contentful Paint
+
+Performance Monitoring
+
+Add tools like Web Vitals API for production monitoring
+Establish specific thresholds for Core Web Vitals (LCP < 2.5s, FID < 100ms, CLS < 0.1)
+Implement automated performance testing via Lighthouse CI
+Configure alerts for performance drops after deployments
+
+Advanced Strategies
+
+Implement pages with Incremental Static Regeneration when appropriate
+Configure preloading of critical routes via <link rel="prefetch">
+Utilize Astro's view transitions API for smooth page navigation
+Define specific rules for unused CSS purging
+Implement Island Architecture consciously, limiting the total number of islands per page

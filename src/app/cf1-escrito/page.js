@@ -5,6 +5,8 @@ import Link from 'next/link';
 import styles from '../../styles/LandingPage.module.css';
 import transcriptStyles from '../../styles/Transcript.module.css';
 import FooterAccordion from '../../components/FooterAccordion';
+import CtaButton from '../../components/CtaButton';
+import SingleCtaButton from '../../components/SingleCtaButton';
 
 export default function TranscriptPage() {
   return (
@@ -284,6 +286,7 @@ export default function TranscriptPage() {
                 
                 <div className={transcriptStyles.priceBox}>
                   <h3>💰 R$47 à vista (por PIX ou cartão)</h3>
+                  <SingleCtaButton />
                   <h3>💰 ou 12x de R$5,10 no cartão</h3>
                 </div>
                 
@@ -354,11 +357,7 @@ export default function TranscriptPage() {
                 
                 <p>Não deixe que outra pessoa tome o seu lugar.</p>
                 
-                <div className={transcriptStyles.ctaContainer}>
-                  <Link href="/cf1" className={transcriptStyles.ctaButton}>
-                    QUERO GARANTIR MINHA VAGA NO COPY CASH AGORA →
-                  </Link>
-                </div>
+                <CtaButton />
                 
                 <p>Vejo você dentro do Copy Cash.</p>
                 

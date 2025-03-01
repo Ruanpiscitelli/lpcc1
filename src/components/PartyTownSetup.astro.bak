@@ -1,0 +1,163 @@
+---
+/**
+ * Componente para configurar o Partytown e gerenciar scripts de terceiros
+ * 
+ * Este componente configura o Partytown para executar scripts de terceiros em web workers,
+ * melhorando a performance da página principal. Também inclui funcionalidades para:
+ * - Carregar scripts com base na interação do usuário
+ * - Verificar consentimento para cookies de marketing
+ * - Inicializar serviços comuns como Google Tag Manager e Facebook Pixel
+ */
+interface Props {
+  forward?: string[];
+  debug?: boolean;
+  loadScriptsOnUserInteraction?: boolean;
+  consentRequired?: boolean;
+}
+
+const {
+  forward = ['dataLayer.push', 'fbq', 'ga', 'gtag', 'fbq.queue.push', 'ttq.load', 'ttq.page', 'ttq.track'],
+  debug = false,
+  loadScriptsOnUserInteraction = true,
+  consentRequired = true
+} = Astro.props;
+---
+
+<!-- Configuração do Partytown -->
+<script type="text/partytown" define:vars={{ forward, debug }}>
+  // Configuração do Partytown
+  window.partytown = {
+    lib: '/~partytown/',
+    debug: debug,
+    forward: forward
+  };
+</script>
+
+<script define:vars={{ loadScriptsOnUserInteraction, consentRequired }}>
+  // Função para verificar consentimento
+  function hasMarketingConsent() {
+    if (!consentRequired) return true;
+    
+    // Verificar se o usuário aceitou cookies de marketing
+    const cookieConsent = localStorage.getItem('cookieConsent');
+    return cookieConsent && cookieConsent.includes('marketing');
+  }
+
+  // Função para carregar scripts de terceiros com Partytown
+  function loadThirdPartyScript(src, type = 'text/partytown', async = true, defer = true) {
+    if (!hasMarketingConsent()) {
+      console.log('Marketing consent not given, skipping script:', src);
+      return;
+    }
+
+    // Verificar se o script já foi carregado
+    if (document.querySelector(`script[src="${src}"]`)) {
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = src;
+    script.type = type;
+    script.async = async;
+    script.defer = defer;
+    document.head.appendChild(script);
+    
+    console.log('Loaded third-party script:', src);
+  }
+
+  // Função para inicializar o Google Tag Manager
+  function initGTM(id) {
+    if (!hasMarketingConsent()) return;
+    
+    loadThirdPartyScript(`https://www.googletagmanager.com/gtm.js?id=${id}`);
+    
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+      window.dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
+    gtag('config', id);
+  }
+
+  // Função para inicializar o Facebook Pixel
+  function initFBPixel(id) {
+    if (!hasMarketingConsent()) return;
+    
+    loadThirdPartyScript(`https://connect.facebook.net/en_US/fbevents.js`);
+    
+    window.fbq = function() {
+      window._fbq.push(arguments);
+    };
+    window._fbq = window._fbq || [];
+    window.fbq('init', id);
+    window.fbq('track', 'PageView');
+  }
+  
+  // Função para carregar todos os scripts de terceiros
+  function loadAllThirdPartyScripts() {
+    // Adicione aqui os scripts que deseja carregar
+    // Exemplo: descomentar as linhas abaixo e substituir os IDs
+    // initGTM('GTM-XXXXXXX');
+    // initFBPixel('XXXXXXXXXX');
+  }
+  
+  // Inicializar scripts de terceiros quando necessário
+  document.addEventListener('DOMContentLoaded', () => {
+    // Se não precisar de interação do usuário, carregar imediatamente
+    if (!loadScriptsOnUserInteraction) {
+      // Usar requestIdleCallback para não bloquear o carregamento da página
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(() => {
+          loadAllThirdPartyScripts();
+        }, { timeout: 5000 });
+      } else {
+        // Fallback para navegadores sem suporte a requestIdleCallback
+        setTimeout(loadAllThirdPartyScripts, 3000);
+      }
+      return;
+    }
+    
+    // Carregar scripts após interação do usuário
+    const userInteractionEvents = ['click', 'scroll', 'keydown', 'mousemove', 'touchstart'];
+    let scriptsLoaded = false;
+    let interactionTimer;
+    
+    const handleUserInteraction = () => {
+      if (scriptsLoaded) return;
+      
+      clearTimeout(interactionTimer);
+      interactionTimer = setTimeout(() => {
+        loadAllThirdPartyScripts();
+        scriptsLoaded = true;
+        
+        // Remover os event listeners após o carregamento
+        userInteractionEvents.forEach(event => {
+          document.removeEventListener(event, handleUserInteraction);
+        });
+      }, 1000);
+    };
+    
+    // Adicionar event listeners para interação do usuário
+    userInteractionEvents.forEach(event => {
+      document.addEventListener(event, handleUserInteraction, { passive: true });
+    });
+    
+    // Carregar scripts após um tempo máximo, mesmo sem interação
+    setTimeout(() => {
+      if (!scriptsLoaded) {
+        loadAllThirdPartyScripts();
+        scriptsLoaded = true;
+        
+        // Remover os event listeners
+        userInteractionEvents.forEach(event => {
+          document.removeEventListener(event, handleUserInteraction);
+        });
+      }
+    }, 10000);
+  });
+  
+  // Expor funções globalmente para uso em outros componentes
+  window.loadThirdPartyScript = loadThirdPartyScript;
+  window.initGTM = initGTM;
+  window.initFBPixel = initFBPixel;
+</script> 

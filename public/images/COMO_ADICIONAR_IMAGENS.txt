@@ -1,0 +1,54 @@
+COMO ADICIONAR IMAGENS AO PROJETO
+==============================
+
+Esta pasta (public/images) é destinada para armazenar imagens que serão acessadas diretamente via URL.
+
+Exemplos de imagens para adicionar aqui:
+- Banners
+- Logos
+- Ícones
+- Imagens de fundo
+- Thumbnails
+
+Para usar estas imagens no seu código:
+
+1. Em componentes React:
+```jsx
+<img src="/images/nome-da-imagem.jpg" alt="Descrição da imagem" />
+```
+
+2. Com o componente Image do Next.js:
+```jsx
+import Image from 'next/image';
+
+<Image 
+  src="/images/nome-da-imagem.jpg" 
+  alt="Descrição da imagem" 
+  width={800} 
+  height={600} 
+  loading="lazy" 
+/>
+```
+
+3. Em CSS:
+```css
+.elemento {
+  background-image: url('/images/nome-da-imagem.jpg');
+}
+```
+
+FORMATOS RECOMENDADOS
+---------------------
+- JPG/JPEG: Para fotografias
+- PNG: Para imagens com transparência
+- SVG: Para ícones e logos
+- WebP: Para melhor compressão
+
+OTIMIZAÇÃO
+----------
+Lembre-se de otimizar suas imagens antes de adicioná-las ao projeto para melhorar o desempenho da página.
+
+Ferramentas recomendadas:
+- TinyPNG (https://tinypng.com/)
+- ImageOptim (https://imageoptim.com/)
+- Squoosh (https://squoosh.app/)

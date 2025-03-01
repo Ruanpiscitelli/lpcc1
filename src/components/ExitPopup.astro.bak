@@ -1,0 +1,221 @@
+---
+/**
+ * Componente de popup de saída
+ * 
+ * Este componente exibe um popup quando o usuário tenta sair da página,
+ * oferecendo uma última chance de conversão.
+ */
+interface Props {
+  title?: string;
+  message?: string;
+  buttonText?: string;
+  buttonUrl?: string;
+  delay?: number;
+  showOnce?: boolean;
+}
+
+const {
+  title = "Espere um momento!",
+  message = "Antes de sair, aproveite esta oferta especial exclusiva para você.",
+  buttonText = "QUERO APROVEITAR AGORA",
+  buttonUrl = "#",
+  delay = 3000,
+  showOnce = true
+} = Astro.props;
+---
+
+<div id="exit-popup" class="exit-popup" aria-hidden="true">
+  <div class="exit-popup-overlay"></div>
+  <div class="exit-popup-content" role="dialog" aria-labelledby="exit-popup-title">
+    <button class="exit-popup-close" aria-label="Fechar popup">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+    
+    <h2 id="exit-popup-title" class="exit-popup-title">{title}</h2>
+    <p class="exit-popup-message">{message}</p>
+    
+    <a href={buttonUrl} class="exit-popup-button pulse">
+      {buttonText}
+    </a>
+  </div>
+</div>
+
+<style>
+  .exit-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+  
+  .exit-popup[aria-hidden="false"] {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  .exit-popup-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+  }
+  
+  .exit-popup-content {
+    position: relative;
+    width: 90%;
+    max-width: 500px;
+    background-color: white;
+    border-radius: 10px;
+    padding: 40px 30px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+  }
+  
+  .exit-popup[aria-hidden="false"] .exit-popup-content {
+    transform: scale(1);
+  }
+  
+  .exit-popup-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    padding: 5px;
+    transition: color 0.3s ease;
+  }
+  
+  .exit-popup-close:hover {
+    color: #333;
+  }
+  
+  .exit-popup-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #ff0000;
+    margin-bottom: 20px;
+  }
+  
+  .exit-popup-message {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 30px;
+    line-height: 1.6;
+  }
+  
+  .exit-popup-button {
+    display: inline-block;
+    background-color: #ff0000;
+    color: white;
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 15px 30px;
+    border-radius: 50px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3);
+  }
+  
+  .exit-popup-button:hover {
+    background-color: #cc0000;
+    transform: translateY(-2px);
+    box-shadow: 0 7px 20px rgba(255, 0, 0, 0.4);
+  }
+  
+  @media (max-width: 768px) {
+    .exit-popup-content {
+      padding: 30px 20px;
+    }
+    
+    .exit-popup-title {
+      font-size: 1.5rem;
+    }
+    
+    .exit-popup-message {
+      font-size: 1rem;
+    }
+    
+    .exit-popup-button {
+      font-size: 0.9rem;
+      padding: 12px 25px;
+    }
+  }
+</style>
+
+<script define:vars={{ delay, showOnce }}>
+  document.addEventListener('DOMContentLoaded', () => {
+    const exitPopup = document.getElementById('exit-popup');
+    const closeButton = exitPopup.querySelector('.exit-popup-close');
+    const overlay = exitPopup.querySelector('.exit-popup-overlay');
+    
+    // Verificar se o popup já foi mostrado antes
+    const hasShownPopup = localStorage.getItem('exitPopupShown');
+    
+    // Função para mostrar o popup
+    const showPopup = () => {
+      exitPopup.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden'; // Impedir rolagem
+      
+      if (showOnce) {
+        localStorage.setItem('exitPopupShown', 'true');
+      }
+    };
+    
+    // Função para fechar o popup
+    const closePopup = () => {
+      exitPopup.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = ''; // Restaurar rolagem
+    };
+    
+    // Detectar quando o usuário tenta sair da página
+    let isReady = false;
+    
+    // Aguardar um tempo antes de ativar a detecção de saída
+    setTimeout(() => {
+      isReady = true;
+      
+      // Apenas mostrar se não foi mostrado antes (quando showOnce é true)
+      if (showOnce && hasShownPopup) {
+        return;
+      }
+      
+      document.addEventListener('mouseout', (e) => {
+        // Se o mouse sair pela parte superior da página
+        if (isReady && e.clientY < 0) {
+          showPopup();
+        }
+      });
+    }, delay);
+    
+    // Adicionar eventos para fechar o popup
+    closeButton.addEventListener('click', closePopup);
+    overlay.addEventListener('click', closePopup);
+    
+    // Fechar com a tecla ESC
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && exitPopup.getAttribute('aria-hidden') === 'false') {
+        closePopup();
+      }
+    });
+  });
+</script> 

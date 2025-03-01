@@ -1,0 +1,228 @@
+/* Overlay que cobre toda a tela */
+.exitPopupOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.85);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Conteúdo do popup */
+.exitPopupContent {
+  background-color: white;
+  border-radius: 8px;
+  padding: 30px;
+  max-width: 600px;
+  width: 90%;
+  position: relative;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+  animation: scaleIn 0.3s ease-out;
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.9); }
+  to { transform: scale(1); }
+}
+
+/* Botão de fechar */
+.closeButton {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 28px;
+  line-height: 1;
+  color: #333;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.closeButton:hover {
+  color: #d20000;
+}
+
+/* Título principal */
+.exitPopupTitle {
+  font-family: Impact, Tahoma, Verdana, sans-serif;
+  font-size: 42px;
+  color: #d20000;
+  text-align: center;
+  margin: 0 0 15px;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+/* Subtítulo */
+.exitPopupSubtitle {
+  font-family: Helvetica, "Helvetica Neue Lt Std", Arial, sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: #333;
+  text-align: center;
+  margin: 0 0 20px;
+  line-height: 1.3;
+}
+
+/* Texto do popup */
+.exitPopupText {
+  font-family: Helvetica, "Helvetica Neue Lt Std", Arial, sans-serif;
+  color: #333;
+  font-size: 16px;
+  line-height: 1.5;
+  margin-bottom: 25px;
+}
+
+.exitPopupText p {
+  margin: 0 0 15px;
+}
+
+.exitPopupText p:last-child {
+  margin-bottom: 0;
+}
+
+/* Container dos botões */
+.exitPopupButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 25px;
+  width: 100%;
+}
+
+/* Botão principal (continuar assistindo) */
+.continueButton {
+  background: linear-gradient(180deg, #d20000 0%, #a70000 100%);
+  color: white;
+  font-family: Helvetica, "Helvetica Neue Lt Std", Arial, sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  padding: 16px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.2s, transform 0.1s;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  text-transform: uppercase;
+}
+
+.continueButton:hover {
+  background: linear-gradient(180deg, #e60000 0%, #b80000 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.continueButton:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Botão secundário (transcrição) */
+.transcriptButton {
+  background: linear-gradient(180deg, #2c7cb0 0%, #1a5980 100%);
+  color: white;
+  font-family: Helvetica, "Helvetica Neue Lt Std", Arial, sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.1s;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  line-height: 1.3;
+}
+
+.transcriptButton:hover {
+  background: linear-gradient(180deg, #3389c1 0%, #1f6a9a 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.transcriptButton:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .exitPopupContent {
+    padding: 20px;
+    width: 95%;
+  }
+  
+  .exitPopupTitle {
+    font-size: 36px;
+  }
+  
+  .exitPopupSubtitle {
+    font-size: 18px;
+  }
+  
+  .exitPopupText {
+    font-size: 14px;
+  }
+  
+  .continueButton {
+    font-size: 16px;
+    padding: 14px 15px;
+  }
+  
+  .transcriptButton {
+    font-size: 14px;
+    padding: 12px 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .exitPopupContent {
+    padding: 15px;
+  }
+  
+  .exitPopupTitle {
+    font-size: 32px;
+  }
+  
+  .exitPopupSubtitle {
+    font-size: 16px;
+  }
+  
+  .exitPopupButtons {
+    gap: 12px;
+  }
+  
+  .continueButton {
+    font-size: 15px;
+    padding: 12px 10px;
+  }
+  
+  .transcriptButton {
+    font-size: 13px;
+    padding: 10px;
+  }
+}

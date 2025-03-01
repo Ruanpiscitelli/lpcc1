@@ -1,0 +1,96 @@
+.landingPage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 0 1rem;
+  font-family: var(--font-inter, sans-serif);
+  background-color: #fff;
+  color: #333;
+  will-change: contents; /* Otimização para o GPU */
+  contain: content; /* Melhora a performance de renderização */
+}
+
+/* Container para a imagem hero com dimensões definidas para evitar layout shifts */
+.heroContainer {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  margin-bottom: 2rem;
+  overflow: hidden;
+  background-color: #f0f0f0; /* Cor de fundo enquanto a imagem carrega */
+  contain: strict; /* Isola o elemento para melhorar a performance */
+  content-visibility: auto; /* Renderiza apenas quando visível */
+}
+
+/* Estilo para a imagem hero */
+.heroImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: translateZ(0); /* Força o uso do GPU */
+}
+
+/* Estilos para o título com tamanho definido para evitar layout shifts */
+.title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-align: center;
+  max-width: 800px;
+  width: 100%;
+  height: auto;
+  contain: content;
+}
+
+/* Estilos para a descrição com tamanho definido para evitar layout shifts */
+.description {
+  font-size: 1.25rem;
+  line-height: 1.5;
+  text-align: center;
+  max-width: 600px;
+  width: 100%;
+  height: auto;
+  contain: content;
+}
+
+/* Media queries para dispositivos móveis */
+@media (max-width: 768px) {
+  .heroContainer {
+    aspect-ratio: 4 / 3; /* Proporção diferente para mobile */
+  }
+  
+  .title {
+    font-size: 1.75rem;
+  }
+  
+  .description {
+    font-size: 1rem;
+  }
+}
+
+/* Animações otimizadas para o GPU */
+@media (prefers-reduced-motion: no-preference) {
+  .title, .description {
+    animation: fadeIn 0.5s ease-in;
+    animation-fill-mode: backwards;
+  }
+  
+  .title {
+    animation-delay: 0.2s;
+  }
+  
+  .description {
+    animation-delay: 0.4s;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+/* Estilos adicionais críticos podem ser adicionados conforme necessário */ 

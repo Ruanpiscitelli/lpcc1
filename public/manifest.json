@@ -1,0 +1,71 @@
+{
+  "name": "Safe Money Report - Proteção de Patrimônio",
+  "short_name": "Safe Money",
+  "description": "Descubra como proteger seu patrimônio com nosso sistema de três cliques antes que seja tarde demais.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ff0000",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icons/icon-144x144.svg",
+      "sizes": "144x144",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Termos e Condições",
+      "short_name": "Termos",
+      "description": "Ver os termos e condições",
+      "url": "/terms",
+      "icons": [
+        {
+          "src": "/favicon.svg",
+          "sizes": "192x192",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Política de Privacidade",
+      "short_name": "Privacidade",
+      "description": "Ver a política de privacidade",
+      "url": "/privacy",
+      "icons": [
+        {
+          "src": "/favicon.svg",
+          "sizes": "192x192",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "categories": ["finance", "education", "productivity"],
+  "screenshots": [],
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "scope": "/",
+  "iarc_rating_id": "",
+  "share_target": {
+    "action": "/share",
+    "method": "GET",
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+  "capture_links": "existing-client-navigate"
+}

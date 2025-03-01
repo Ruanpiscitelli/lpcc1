@@ -1,0 +1,137 @@
+---
+description: Core Web Vitals Optimization Strategy
+globs: 
+alwaysApply: true
+---
+# Performance Metrics Framework for Astro Projects
+
+## Core Web Vitals Optimization Strategy
+
+### Largest Contentful Paint (LCP) Enhancement
+- Establish strict LCP budget of <2.5s for all pages
+- Identify and optimize LCP elements through automated tooling
+- Implement critical CSS extraction for above-the-fold content
+- Configure proper resource hints (preconnect, preload) for key assets
+- Optimize image delivery with responsive formats and dimensions:
+  ```astro
+  <Image 
+    src={heroImage} 
+    width={1200} 
+    height={600} 
+    formats={["avif", "webp", "jpg"]} 
+    loading="eager" 
+    fetchpriority="high" 
+    alt="Hero description" 
+  />
+  ```
+
+### First Input Delay (FID) / Interaction to Next Paint (INP) Minimization
+- Set FID target of <100ms across all interactive elements
+- Implement main thread work minimization strategies
+- Defer non-critical JavaScript with appropriate client directives
+- Break up long-running tasks into smaller chunks
+- Monitor Total Blocking Time (TBT) as a proxy for FID during development
+- Implement web workers for CPU-intensive operations
+
+### Cumulative Layout Shift (CLS) Prevention
+- Maintain CLS score <0.1 across all pages and viewports
+- Set explicit dimensions for all media elements
+- Implement content-visibility strategies for long pages
+- Create skeleton loading states with identical dimensions as final content
+- Prevent late-loading font shifts with proper font display strategies
+- Monitor unexpected layout shifts with PerformanceObserver API
+
+## Performance Measurement Infrastructure
+
+### Automated Testing Pipeline
+- Implement Lighthouse CI integration in deployment workflow:
+  ```yaml
+  # lighthouse-ci configuration
+  ci:
+    collect:
+      url:
+        - http://localhost:4000/
+        - http://localhost:4000/product
+        - http://localhost:4000/blog
+      numberOfRuns: 3
+      settings:
+        throttling:
+          cpuSlowdownMultiplier: 4
+    assert:
+      assertions:
+        interactive: [error, {maxNumericValue: 3500}]
+        'largest-contentful-paint': [error, {maxNumericValue: 2500}]
+        'cumulative-layout-shift': [error, {maxNumericValue: 0.1}]
+        'total-blocking-time': [error, {maxNumericValue: 300}]
+  ```
+- Configure WebPageTest API integration for detailed multi-device testing
+- Implement bundle size analysis in pre-commit hooks
+- Create automated visual regression testing for layout shift detection
+- Set up synthetic and real user monitoring (RUM) integration
+
+### Performance Budgets Implementation
+- Establish clear constraints for each metric:
+  - Total JavaScript bundle: <150KB (gzipped)
+  - LCP: <2.5s on 4G connection
+  - TTI: <3.5s on 4G connection
+  - CSS size: <20KB (gzipped)
+  - Maximum number of network requests: <30
+- Configure automated build failures when budgets are exceeded
+- Create per-component performance budgets for complex UIs
+- Implement differential budgeting for new features vs. baseline
+
+### Real User Monitoring (RUM)
+- Implement Web Vitals tracking with analytics integration:
+  ```javascript
+  // web-vitals.js
+  import {onCLS, onFID, onLCP} from 'web-vitals';
+  
+  function sendToAnalytics({name, delta, value, id}) {
+    // Analytics integration
+    console.log({name, delta, value, id});
+  }
+  
+  onCLS(sendToAnalytics);
+  onFID(sendToAnalytics);
+  onLCP(sendToAnalytics);
+  ```
+- Create performance dashboards for tracking trends over time
+- Implement segmentation by device, connection type, and geography
+- Configure alerting for significant performance regressions
+- Set up user journey performance tracking for critical paths
+
+## Advanced Performance Strategies
+
+### Resource Optimization
+- Implement resource hints strategically:
+  ```html
+  <!-- For critical third-party domains -->
+  <link rel="preconnect" href="https://analytics.example.com">
+  <link rel="dns-prefetch" href="https://analytics.example.com">
+  
+  <!-- For critical resources -->
+  <link rel="preload" href="/fonts/brand.woff2" as="font" type="font/woff2" crossorigin>
+  
+  <!-- For likely navigation -->
+  <link rel="prefetch" href="/likely-next-page">
+  ```
+- Create adaptive loading patterns based on connection quality
+- Implement module/nomodule pattern for JavaScript differential serving
+- Configure proper cache policies with cache-control headers
+- Implement service worker caching strategies for offline functionality
+
+### Rendering Optimization Techniques
+- Implement partial hydration strategies for interactive islands
+- Use streaming SSR for improved TTFB and perceived performance
+- Create progressive enhancement patterns for core functionality
+- Implement virtualization for long lists and complex UIs
+- Configure view transitions API for smooth navigation experiences
+
+### Continuous Performance Culture
+- Establish performance budgets in design and planning phases
+- Create developer performance awareness through documentation
+- Implement performance impact analysis for all new features
+- Schedule regular performance audits and optimization sprints
+- Maintain a performance regression test suite
+
+This comprehensive performance metrics framework provides a structured approach to measuring, monitoring, and optimizing Astro projects for maximum user experience and search engine visibility.

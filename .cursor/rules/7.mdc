@@ -1,0 +1,204 @@
+---
+description: Comprehensive Astro Project Guidelines Integrations & Plugins Architecture
+globs: 
+alwaysApply: true
+---
+# Comprehensive Astro Project Guidelines
+
+## Integrations & Plugins Architecture
+
+### Strategic Integration Selection
+- Prioritize official Astro integrations for guaranteed compatibility and maintenance
+- Implement performance benchmarking before and after adding each integration
+- Create fallback strategies for critical integrations in case of runtime failures
+- Document integration dependencies and version compatibility in a dedicated file
+
+### Configuration Management
+- Structure `astro.config.mjs` with clear separation of concerns:
+  ```javascript
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  import tailwind from '@astrojs/tailwind';
+  import image from '@astrojs/image';
+  import sitemap from '@astrojs/sitemap';
+  
+  export default defineConfig({
+    site: 'https://yoursite.com',
+    integrations: [
+      // Core functionality
+      tailwind({
+        config: { path: './tailwind.config.cjs' },
+        applyBaseStyles: false,
+      }),
+      
+      // Media optimization
+      image({
+        serviceEntryPoint: '@astrojs/image/sharp',
+        cacheDir: './.cache/image',
+        logLevel: 'info',
+      }),
+      
+      // SEO enhancements
+      sitemap({
+        filter: (page) => !page.includes('draft'),
+        changefreq: 'weekly',
+      }),
+    ],
+    // Additional configuration...
+  });
+  ```
+- Implement environment-specific configurations for development/production
+- Create testing procedures for verifying integration functionality
+
+### Essential Integrations Toolkit
+- `@astrojs/image`: Configure with specific output formats (WebP, AVIF) and quality settings
+- `@astrojs/mdx`: Enhance with syntax highlighting and custom components
+- `@astrojs/sitemap`: Implement with dynamic priority calculation based on content importance
+- `@astrojs/prefetch`: Configure with intelligent route prediction
+- `@astrojs/partytown`: Implement for third-party script offloading with specific script targeting
+
+## Build & Deployment Infrastructure
+
+### Build Process Optimization
+- Implement distinct build modes with environment-specific optimizations:
+  ```bash
+  # package.json
+  "scripts": {
+    "build": "astro build",
+    "build:preview": "astro build --mode preview",
+    "build:staging": "astro build --mode staging",
+    "build:production": "astro build --mode production"
+  }
+  ```
+- Configure build-time error reporting with actionable diagnostics
+- Implement bundle analysis and size budgeting for JavaScript output
+- Create incremental build capabilities for large sites
+- Set up intelligent caching strategies for build artifacts
+
+### Environment Configuration
+- Structure `.env` files hierarchically:
+  ```
+  .env                  # Base environment variables
+  .env.development      # Development overrides
+  .env.staging          # Staging environment
+  .env.production       # Production settings
+  ```
+- Implement runtime environment validation with Zod schemas
+- Create strict typing for all environment variables with fallback values
+- Document required environment variables with examples and validation rules
+- Implement secure environment variable handling for sensitive credentials
+
+### Deployment Platform Integration
+- Configure platform-specific optimizations:
+  - **Netlify**: Implement edge functions for regional content delivery
+  - **Vercel**: Configure ISR (Incremental Static Regeneration) for dynamic content
+  - **Cloudflare Pages**: Optimize asset caching and edge processing
+- Implement atomic deployments with rollback capabilities
+- Create health check endpoints for deployment verification
+- Configure proper cache invalidation strategies for CDN layers
+- Implement branch preview deployments with dynamic subdomain routing
+
+### CI/CD Pipeline Architecture
+- Configure comprehensive testing before deployment:
+  ```yaml
+  # .github/workflows/deploy.yml example
+  jobs:
+    build_and_deploy:
+      steps:
+        - uses: actions/checkout@v3
+        - name: Setup Node.js
+          uses: actions/setup-node@v3
+        - name: Install dependencies
+          run: npm ci
+        - name: Type check
+          run: npm run typecheck
+        - name: Lint
+          run: npm run lint
+        - name: Unit tests
+          run: npm run test:unit
+        - name: Build
+          run: npm run build
+        - name: Lighthouse audit
+          uses: treosh/lighthouse-ci-action@v9
+        - name: Deploy
+          if: success()
+          # Deployment logic
+  ```
+- Implement deployment approval workflows for production environments
+- Create deployment notification systems for team awareness
+- Configure deployment monitoring with performance tracking
+- Implement automatic rollbacks for failed deployments
+
+## Tailwind CSS Implementation
+
+### Integration & Configuration
+- Configure Tailwind with Astro without base styles to prevent conflicts:
+  ```javascript
+  // tailwind.config.cjs
+  /** @type {import('tailwindcss').Config} */
+  module.exports = {
+    content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
+    theme: {
+      extend: {
+        colors: {
+          primary: { /* Custom color palette */ },
+          secondary: { /* Custom color palette */ },
+        },
+        spacing: {
+          // Custom spacing scale
+        },
+        fontFamily: {
+          // Custom font families
+        },
+      },
+    },
+    plugins: [
+      require('@tailwindcss/typography'),
+      require('@tailwindcss/forms'),
+    ],
+  }
+  ```
+- Implement a design system with a custom preset for consistent brand styling
+- Create custom utilities for project-specific needs
+- Configure PurgeCSS settings for optimal production output
+- Set up linting rules for Tailwind class ordering and consistency
+
+### Utility-First Methodology
+- Establish class naming conventions and order consistency
+- Implement responsive design using mobile-first approach with breakpoint utilities
+- Create component-specific utility patterns for reusability without abstraction
+- Enforce utility-first approach across all components without exception
+- **Strictly avoid `@apply` directive** to maintain clarity and debugging ease
+
+### Component Styling Pattern
+```astro
+<!-- Recommended approach -->
+<div class="
+  flex flex-col items-center p-4 
+  bg-white dark:bg-gray-800 
+  shadow-md rounded-lg
+  sm:flex-row sm:justify-between
+  md:p-6
+">
+  <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-0">
+    Card Title
+  </h2>
+  <button class="
+    px-4 py-2
+    bg-primary-500 hover:bg-primary-600
+    text-white font-medium rounded-md
+    transition-colors duration-200
+  ">
+    Action
+  </button>
+</div>
+```
+
+### Advanced Tailwind Implementation
+- Configure Just-In-Time mode for unlimited utility variations
+- Implement dark mode with `class` strategy for user preference control
+- Leverage CSS variables for theme values to enable runtime customization
+- Create responsive container queries for component-based layouts
+- Implement multi-theme support with CSS variable system
+
+This comprehensive guide provides detailed specifications for integrating and deploying Astro projects with Tailwind CSS, ensuring consistency, performance, and maintainability across your development workflow.

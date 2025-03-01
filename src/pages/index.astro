@@ -1,0 +1,266 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import OptimizedImage from '../components/OptimizedImage.astro';
+import FooterAccordion from '../components/FooterAccordion.astro';
+
+// Dados da página
+const pageTitle = "A Bomba-Relógio da Aposentadoria do Servidor | Safe Money Report";
+const pageDescription = "Descubra como proteger seu patrimônio com nosso sistema de três cliques antes que seja tarde demais.";
+
+// Configurações de SEO e meta tags
+const seoConfig = {
+	title: pageTitle,
+	description: pageDescription,
+	image: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?q=80&w=1200&auto=format&fit=crop",
+	canonicalUrl: new URL(Astro.url.pathname, Astro.site).href,
+	structuredData: {
+		"@context": "https://schema.org",
+		"@type": "WebPage",
+		"name": pageTitle,
+		"description": pageDescription,
+		"publisher": {
+			"@type": "Organization",
+			"name": "Safe Money Report",
+			"logo": {
+				"@type": "ImageObject",
+				"url": new URL("/logo.svg", Astro.site).href
+			}
+		}
+	}
+};
+
+// Configurações de preconnect e prefetch
+const preconnectDomains = [
+	"https://images.converteai.net",
+	"https://scripts.converteai.net",
+	"https://images.unsplash.com"
+];
+
+// Recursos para preload
+const preloadResources = [
+	{
+		href: "https://images.converteai.net/9f42948f-1e82-4960-b793-0f0c80350dc8/players/6759dd77d07a5ff5c7ca43f4/thumbnail.jpg",
+		as: "image",
+		type: "image/jpeg",
+		crossorigin: true
+	}
+];
+
+// Configurações de fontes
+const fontConfig = [
+	{
+		family: "Montserrat",
+		weights: [400, 500, 600, 700],
+		display: "swap",
+		preload: true,
+		styles: ["normal"]
+	},
+	{
+		family: "Inter",
+		weights: [400, 500],
+		display: "swap",
+		preload: false,
+		styles: ["normal"]
+	}
+];
+
+// Dados para o acordeão do rodapé
+const footerAccordionItems = [
+	{
+		title: "Termos de Uso",
+		content: `
+			<p>Ao utilizar este site, você concorda com nossos termos de uso. O conteúdo apresentado é apenas para fins informativos e educacionais.</p>
+			<p>Não garantimos resultados específicos e recomendamos que você consulte um profissional financeiro antes de tomar qualquer decisão de investimento.</p>
+		`
+	},
+	{
+		title: "Política de Privacidade",
+		content: `
+			<p>Respeitamos sua privacidade e protegemos seus dados pessoais. Utilizamos cookies para melhorar sua experiência em nosso site.</p>
+			<p>Não compartilhamos suas informações com terceiros sem seu consentimento explícito.</p>
+		`
+	},
+	{
+		title: "Sobre Nós",
+		content: `
+			<p>A Safe Money Report é uma empresa especializada em educação financeira para servidores públicos.</p>
+			<p>Nossa missão é ajudar servidores a protegerem seu patrimônio e garantirem uma aposentadoria tranquila.</p>
+		`
+	}
+];
+---
+
+<BaseLayout
+	title={seoConfig.title}
+	description={seoConfig.description}
+	image={seoConfig.image}
+	canonicalUrl={seoConfig.canonicalUrl}
+	structuredData={seoConfig.structuredData}
+	preconnect={preconnectDomains}
+	preload={preloadResources}
+	fonts={fontConfig}
+>
+	<header class="hero">
+		<div class="container">
+			<div class="logo-container">
+				<OptimizedImage
+					src="/logo.svg"
+					alt="Safe Money Report Logo"
+					width={180}
+					height={60}
+					loading="eager"
+					fetchpriority="high"
+				/>
+			</div>
+			
+			<h1 class="headline">A Bomba-Relógio da Aposentadoria do Servidor</h1>
+			<p class="subheadline">Descubra como proteger seu patrimônio com nosso sistema de três cliques antes que seja tarde demais.</p>
+			
+			<div class="video-container">
+				<div class="video-wrapper">
+					<!-- Placeholder para o vídeo do ConverteAI -->
+					<div id="vid_6759dd77d07a5ff5c7ca43f4" style="position:relative;width:100%;padding: 56.25% 0 0;border-radius:8px;overflow:hidden;">
+						<img 
+							src="https://images.converteai.net/9f42948f-1e82-4960-b793-0f0c80350dc8/players/6759dd77d07a5ff5c7ca43f4/thumbnail.jpg" 
+							alt="Thumbnail do vídeo" 
+							style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;"
+							loading="eager"
+							fetchpriority="high"
+						/>
+						<div id="backdrop_6759dd77d07a5ff5c7ca43f4" style="position:absolute;top:0;width:100%;height:100%;-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);"></div>
+						<img 
+							id="thumb_6759dd77d07a5ff5c7ca43f4" 
+							src="https://images.converteai.net/9f42948f-1e82-4960-b793-0f0c80350dc8/players/6759dd77d07a5ff5c7ca43f4/thumbnail.jpg" 
+							style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;z-index:2;" 
+							alt="Thumbnail do vídeo"
+						/>
+						<div id="backdrop_6759dd77d07a5ff5c7ca43f4" style="position:absolute;top:0;width:100%;height:100%;-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);"></div>
+					</div>
+				</div>
+				
+				<div class="video-cta">
+					<button class="cta-button pulse">QUERO PROTEGER MEU PATRIMÔNIO AGORA</button>
+				</div>
+			</div>
+		</div>
+	</header>
+	
+	<main>
+		<section class="benefits">
+			<div class="container">
+				<h2 class="section-title">Por que você precisa agir agora</h2>
+				
+				<div class="benefits-grid">
+					<div class="benefit-card">
+						<div class="benefit-icon">
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+								<circle cx="12" cy="12" r="10"></circle>
+								<line x1="12" y1="8" x2="12" y2="12"></line>
+								<line x1="12" y1="16" x2="12.01" y2="16"></line>
+							</svg>
+						</div>
+						<h3>Risco Iminente</h3>
+						<p>A reforma da previdência criou uma bomba-relógio para servidores que pode explodir a qualquer momento.</p>
+					</div>
+					
+					<div class="benefit-card">
+						<div class="benefit-icon">
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+								<path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+								<path d="M2 17l10 5 10-5"></path>
+								<path d="M2 12l10 5 10-5"></path>
+							</svg>
+						</div>
+						<h3>Patrimônio em Risco</h3>
+						<p>Seu patrimônio construído ao longo de anos pode desaparecer se você não tomar as medidas certas agora.</p>
+					</div>
+					
+					<div class="benefit-card">
+						<div class="benefit-icon">
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+								<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+								<polyline points="22 4 12 14.01 9 11.01"></polyline>
+							</svg>
+						</div>
+						<h3>Solução Simples</h3>
+						<p>Nosso sistema de três cliques permite proteger seu patrimônio de forma rápida e eficaz.</p>
+					</div>
+				</div>
+			</div>
+		</section>
+		
+		<section class="testimonials">
+			<div class="container">
+				<h2 class="section-title">O que dizem nossos clientes</h2>
+				
+				<div class="testimonials-grid">
+					<div class="testimonial-card">
+						<div class="testimonial-avatar">
+							<OptimizedImage
+								src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=faces"
+								alt="João Silva"
+								width={60}
+								height={60}
+							/>
+						</div>
+						<h3>João Silva</h3>
+						<p>"Graças ao sistema da Safe Money Report, consegui proteger minha aposentadoria e garantir um futuro tranquilo para minha família."</p>
+					</div>
+					
+					<div class="testimonial-card">
+						<div class="testimonial-avatar">
+							<OptimizedImage
+								src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=faces"
+								alt="Maria Oliveira"
+								width={60}
+								height={60}
+							/>
+						</div>
+						<h3>Maria Oliveira</h3>
+						<p>"Nunca imaginei que minha aposentadoria estava em risco. Com as orientações da Safe Money, consegui reverter a situação em apenas algumas semanas."</p>
+					</div>
+					
+					<div class="testimonial-card">
+						<div class="testimonial-avatar">
+							<OptimizedImage
+								src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=faces"
+								alt="Carlos Santos"
+								width={60}
+								height={60}
+							/>
+						</div>
+						<h3>Carlos Santos</h3>
+						<p>"Sou servidor há 25 anos e nunca tinha percebido os riscos que corria. O sistema de três cliques mudou completamente minha perspectiva financeira."</p>
+					</div>
+				</div>
+			</div>
+		</section>
+	</main>
+	
+	<footer>
+		<div class="container">
+			<FooterAccordion items={footerAccordionItems} />
+			
+			<div class="footer-copyright">
+				<p>&copy; {new Date().getFullYear()} Safe Money Report. Todos os direitos reservados.</p>
+			</div>
+		</div>
+	</footer>
+</BaseLayout>
+
+<style>
+	/* Estilos específicos da página */
+	.footer-copyright {
+		text-align: center;
+		margin-top: 30px;
+		padding: 20px 0;
+		border-top: 1px solid #eee;
+		color: #999;
+		font-size: 0.9rem;
+	}
+	
+	footer {
+		background-color: #f9f9f9;
+		padding: 60px 0 30px;
+	}
+</style> 

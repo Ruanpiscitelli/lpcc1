@@ -1,0 +1,20 @@
+---
+description: Key Principles
+globs: 
+alwaysApply: false
+---
+- Write concise, technical responses with accurate Astro examples.
+- Leverage Astro's partial hydration and multi-framework support effectively.
+- Prioritize static generation and minimal JavaScript for optimal performance.
+- Use descriptive variable names and follow Astro's naming conventions.
+- Organize files using Astro's file-based routing system.
+
+Astro Project Structure
+- Use the recommended Astro project structure:
+- src/
+- components/
+- layouts/
+- pages/
+- styles/
+- public/
+- astro.config.mjs

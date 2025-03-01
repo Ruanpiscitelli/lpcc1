@@ -1,0 +1,18 @@
+{
+  "resolveUrl": {
+    "www.googletagmanager.com": "/api/gtm-proxy?url=",
+    "connect.facebook.net": "/api/fb-proxy?url="
+  },
+  "forward": [
+    "dataLayer.push",
+    "fbq"
+  ],
+  "logCalls": false,
+  "logGetters": false,
+  "logSetters": false,
+  "logImageRequests": false,
+  "logScriptExecution": false,
+  "logSendBeaconRequests": false,
+  "logStackTraces": false,
+  "logMainAccess": false
+}

@@ -1,0 +1,76 @@
+COMO USAR IMAGENS IMPORTADAS NO PROJETO
+====================================
+
+Esta pasta (src/assets/images) é destinada para armazenar imagens que serão importadas diretamente nos componentes React usando o sistema de módulos do JavaScript.
+
+DIFERENÇA ENTRE PASTAS DE IMAGENS
+---------------------------------
+
+1. `/public/images`:
+   - Imagens acessadas via URL direta
+   - Não passam pelo processo de build
+   - Ideal para imagens que precisam de URL pública
+
+2. `/src/assets/images` (esta pasta):
+   - Imagens importadas como módulos
+   - Processadas pelo webpack durante o build
+   - Otimizadas automaticamente
+   - Ideal para imagens que são parte da UI
+
+COMO IMPORTAR E USAR
+-------------------
+
+1. Importação básica:
+```jsx
+import minhaImagem from '@/assets/images/minha-imagem.jpg';
+
+function MeuComponente() {
+  return <img src={minhaImagem} alt="Descrição" />;
+}
+```
+
+2. Com o componente Image do Next.js (recomendado):
+```jsx
+import Image from 'next/image';
+import minhaImagem from '@/assets/images/minha-imagem.jpg';
+
+function MeuComponente() {
+  return (
+    <Image 
+      src={minhaImagem} 
+      alt="Descrição da imagem"
+      placeholder="blur" // Opcional: mostra uma versão desfocada durante o carregamento
+      // Não é necessário especificar width e height, pois são obtidos automaticamente
+    />
+  );
+}
+```
+
+3. Importação dinâmica (para muitas imagens):
+```jsx
+// Não recomendado para produção, apenas para demonstração
+function importarImagem(nome) {
+  return require(`@/assets/images/${nome}`).default;
+}
+
+// Uso
+const imagemDinamica = importarImagem('minha-imagem.jpg');
+```
+
+VANTAGENS DE USAR IMAGENS IMPORTADAS
+-----------------------------------
+- Verificação de tipos em tempo de compilação
+- Otimização automática de imagens
+- Geração automática de placeholders de blur
+- Dimensões da imagem são determinadas automaticamente
+
+FORMATOS RECOMENDADOS
+--------------------
+- Mesmos formatos recomendados para `/public/images`
+- Dê preferência para formatos modernos como WebP quando possível
+
+DICAS DE ORGANIZAÇÃO
+-------------------
+- Crie subpastas para organizar por categoria (icons/, backgrounds/, etc.)
+- Use nomes descritivos e consistentes
+- Mantenha as imagens otimizadas antes de adicioná-las ao projeto

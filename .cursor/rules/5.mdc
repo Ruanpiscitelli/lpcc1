@@ -1,0 +1,101 @@
+---
+description: Data Fetching & Management
+globs: 
+alwaysApply: true
+---
+Server-Side Data Handling
+
+Fetch during SSR/SSG with top-level await
+
+Leverage Astro's built-in support for top-level await in .astro files
+Implement request deduplication for duplicate data needs
+Set appropriate timeout handling for external API calls
+Cache expensive data fetching operations at build time
+
+
+Component Data Flow with Astro.props
+
+Define strict TypeScript interfaces for all component props
+Implement Zod schemas for runtime validation of critical data
+Create helper functions for complex data transformations before passing to props
+Document required vs. optional props with clear JSDoc comments
+Implement fallback UI states for when optional props are missing
+
+
+
+Static Site Generation Strategies
+
+Dynamic Routes with getStaticPaths()
+
+Return both params and props to avoid redundant data fetching
+Implement pagination patterns with the paginate() helper
+Use the prerender flag strategically for hybrid rendering
+Optimize build performance with targeted data fetching
+
+astroCopyexport async function getStaticPaths({ paginate }) {
+  const allPosts = await fetchPosts();
+  return paginate(allPosts, { pageSize: 10 });
+}
+
+Local File Processing with Astro.glob()
+
+Use specific glob patterns to minimize unnecessary file processing
+Implement caching strategies for repeated glob operations
+Extract and transform frontmatter data efficiently
+Process images and other assets within the same operation
+
+astroCopyconst posts = await Astro.glob('../content/blog/*.md');
+const sortedPosts = posts.sort((a, b) => 
+  new Date(b.frontmatter.date) - new Date(a.frontmatter.date)
+);
+
+
+Content Collections API
+
+Leverage typed Content Collections for structured data
+Create collection schemas with strong validation rules
+Implement references between collections for relational data
+Use collection queries with filtering and sorting capabilities
+Generate TypeScript types automatically from collection schemas
+
+Error Handling & Resilience
+
+Comprehensive Error States
+
+Implement graceful degradation for API failures
+Create dedicated error boundary components
+Log detailed error information during build process
+Provide meaningful user feedback for runtime errors
+Test error scenarios as part of CI/CD pipeline
+
+
+Data Validation
+
+Implement server-side validation before data processing
+Create consistent error message formats
+Add runtime type checking for critical data paths
+Set up monitoring for data integrity issues
+
+
+
+Performance Optimization
+
+Incremental Static Regeneration
+
+Configure appropriate revalidation periods for dynamic content
+Implement stale-while-revalidate patterns for fresh content
+Use on-demand revalidation for critical updates
+
+
+Selective Hydration
+
+Only hydrate components that need client-side data fetching
+Implement progressive enhancement for data-heavy interfaces
+Use client:idle for non-critical data loading operations
+
+
+Data Prefetching
+
+Implement resource hints for likely user journeys
+Use link prefetching for high-probability navigation paths
+Preload critical API endpoints for faster subsequent loads

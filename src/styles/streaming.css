@@ -1,0 +1,93 @@
+/**
+ * Estilos para o exemplo de Streaming SSR
+ */
+
+.streaming-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.streaming-container h2 {
+  color: #333;
+  margin-bottom: 1rem;
+  font-size: 1.8rem;
+}
+
+.streaming-container p {
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+/* Estilos para os componentes lentos */
+.slow-component {
+  background-color: #fff;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-radius: 6px;
+  border-left: 4px solid #4a90e2;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.slow-component h3 {
+  color: #4a90e2;
+  margin-bottom: 0.5rem;
+  font-size: 1.4rem;
+}
+
+.slow-component p {
+  color: #666;
+  margin-bottom: 0;
+}
+
+/* Estilos para o fallback de carregamento */
+.loading-fallback {
+  background-color: #f0f4f8;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100px;
+}
+
+.loading-fallback p {
+  color: #666;
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+}
+
+/* Spinner de carregamento */
+.loading-spinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(74, 144, 226, 0.3);
+  border-radius: 50%;
+  border-top-color: #4a90e2;
+  animation: spin 1s ease-in-out infinite;
+}
+
+/* Animações */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+} 

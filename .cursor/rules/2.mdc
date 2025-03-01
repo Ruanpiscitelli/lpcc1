@@ -1,0 +1,68 @@
+---
+description: Component Development
+globs: 
+alwaysApply: false
+---
+Component Format Selection & Organization
+
+Create .astro files as the default component format to leverage zero-JS benefits
+Establish a clear directory structure: /components/[domain]/[ComponentName].astro
+Implement typed interfaces for all component props using TypeScript
+Document each component with JSDoc comments including usage examples
+Create an internal component library with Storybook for visual testing and documentation
+
+Framework Integration - Strategic Usage
+
+Reserve framework-specific components (React, Vue, Svelte) only for:
+
+Complex interactive UI elements requiring state management
+Components leveraging framework-specific libraries with no Astro equivalent
+Cases where team expertise strongly favors a specific framework
+
+
+Track and document JS bundle size impact for each framework component
+Standardize on a single UI framework when possible to reduce bundle size
+
+Component Composition Best Practices
+
+Implement atomic design principles (atoms, molecules, organisms)
+Create specialized layout components for consistent page structures
+Use slots and named slots for flexible content projection:
+astroCopy<Card>
+  <h2 slot="title">Card Title</h2>
+  <p slot="content">Card content goes here</p>
+  <div slot="footer">Footer actions</div>
+</Card>
+
+Design components with clear single responsibilities
+Establish maximum nesting depth guidelines (e.g., max 3 levels)
+
+Props & Data Management
+
+Define strict TypeScript interfaces for all component props
+Implement default prop values for optional parameters
+Use Zod or similar for runtime prop validation when needed
+Leverage Astro's top-level await for data fetching in page components
+Pass data down to child components rather than fetching in multiple places
+
+Astro-Native Features Utilization
+
+Use <Markdown /> component for content-heavy sections, with proper styling
+Implement <Image /> for all image content with appropriate optimization settings
+Utilize Astro's Content Collections for structured data management
+Leverage getStaticPaths() for dynamic route generation
+Use Astro's built-in head management for SEO optimization
+
+Performance Considerations
+
+Set explicit hydration boundaries with appropriate client directives
+Implement code-splitting strategies for larger component trees
+Create performance budgets for component rendering times
+Measure and optimize component-specific Cumulative Layout Shift
+
+Accessibility Standards
+
+Ensure all components meet WCAG 2.1 AA standards
+Implement proper ARIA attributes for interactive components
+Test all components with keyboard navigation
+Document accessibility features in component documentation
