@@ -1,7 +1,6 @@
 import { withSentryConfig } from '@sentry/nextjs';
 import CompressionPlugin from 'compression-webpack-plugin';
 import bundleAnalyzerImport from '@next/bundle-analyzer';
-import { createVanillaExtractPlugin } from '@vanilla-extract/next-plugin';
 import { createRequire } from 'module';
 import crypto from 'crypto';
 
@@ -11,9 +10,6 @@ const require = createRequire(import.meta.url);
 const bundleAnalyzer = process.env.ANALYZE === 'true' 
   ? bundleAnalyzerImport({ enabled: true })
   : (config) => config;
-
-// Configurar o plugin vanilla-extract
-const withVanillaExtract = createVanillaExtractPlugin();
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -268,10 +264,8 @@ const nextConfig = {
   ],
 };
 
-// Aplicar plugins
-const configWithPlugins = withVanillaExtract(
-  bundleAnalyzer(nextConfig)
-);
+// Aplicar plugins (sem vanilla-extract)
+const configWithPlugins = bundleAnalyzer(nextConfig);
 
 // Exportar configuração final sem o Sentry
 export default configWithPlugins;

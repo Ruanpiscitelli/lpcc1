@@ -8,7 +8,6 @@
 [build.environment]
   NEXT_USE_NETLIFY_EDGE = "true"
 
-# Configurações opcionais para melhorar o desempenho
 [build.processing]
   skip_processing = false
 
