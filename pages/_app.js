@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { inter, roboto, combineClassNames } from '../src/utils/font-optimization';
+import { inter, roboto, combineClassNames } from '../src/utils/fonts';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 

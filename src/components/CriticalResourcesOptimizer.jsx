@@ -2,7 +2,7 @@
 
 import { useEffect, memo } from 'react';
 import Head from 'next/head';
-import { inter } from '../utils/font-optimization';
+import { inter, roboto } from '../utils/fonts';
 
 /**
  * Componente responsável por otimizar o carregamento de recursos críticos

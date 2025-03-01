@@ -4,34 +4,22 @@
  */
 
 // Nome do cache
-const CACHE_NAME = 'ai-landing-page-v1';
+const CACHE_NAME = 'app-cache-v1';
 
-// Recursos para pré-cachear
-const PRECACHE_ASSETS = [
+// Recursos para cache
+const STATIC_RESOURCES = [
   '/',
-  '/cf1',
-  '/~partytown/partytown.js',
-  '/~partytown/partytown-sw.js',
-  '/~partytown/partytown-media.js',
-  '/~partytown/partytown-atomics.js',
-  '/~partytown/partytown-config.json'
+  '/offline',
+  '/static/fonts/**/*',
+  '/static/images/**/*',
 ];
 
-// Instalar o service worker
+// Instala o Service Worker
 self.addEventListener('install', (event) => {
-  // Ativar imediatamente, sem esperar que o antigo termine
-  self.skipWaiting();
-  
-  // Pré-cachear recursos importantes
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('Service Worker: Pré-cacheando recursos');
-        return cache.addAll(PRECACHE_ASSETS);
-      })
-      .catch((error) => {
-        console.error('Service Worker: Erro ao pré-cachear recursos:', error);
-      })
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(STATIC_RESOURCES);
+    })
   );
 });
 
@@ -56,119 +44,25 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Estratégia de cache: Cache First, então Network
+// Estratégia de cache: Network First, fallback para cache
 self.addEventListener('fetch', (event) => {
-  // Ignorar requisições não GET
-  if (event.request.method !== 'GET') return;
-  
-  // Ignorar requisições de análise e rastreamento
-  if (
-    event.request.url.includes('google-analytics.com') ||
-    event.request.url.includes('googletagmanager.com') ||
-    event.request.url.includes('facebook.net') ||
-    event.request.url.includes('analytics') ||
-    event.request.url.includes('tracking')
-  ) {
-    return;
-  }
-  
-  // Ignorar requisições para a API
-  if (event.request.url.includes('/api/')) {
-    return;
-  }
-  
-  // Estratégia específica para arquivos do Partytown
-  if (event.request.url.includes('/~partytown/')) {
-    event.respondWith(
-      caches.match(event.request)
-        .then((cachedResponse) => {
-          if (cachedResponse) {
-            return cachedResponse;
-          }
-          
-          return fetch(event.request)
-            .then((response) => {
-              // Não cachear respostas com erro
-              if (!response || response.status !== 200 || response.type !== 'basic') {
-                return response;
-              }
-              
-              // Clonar a resposta para cachear
-              const responseToCache = response.clone();
-              
-              caches.open(CACHE_NAME)
-                .then((cache) => {
-                  cache.put(event.request, responseToCache);
-                });
-              
-              return response;
-            });
-        })
-    );
-    return;
-  }
-  
-  // Estratégia para outros recursos: Cache First, então Network
   event.respondWith(
-    caches.match(event.request)
-      .then((cachedResponse) => {
-        // Retornar do cache se disponível
-        if (cachedResponse) {
-          // Atualizar o cache em segundo plano para recursos HTML
-          if (event.request.url.endsWith('/') || event.request.url.includes('.html')) {
-            fetch(event.request)
-              .then((response) => {
-                if (!response || response.status !== 200 || response.type !== 'basic') {
-                  return;
-                }
-                
-                caches.open(CACHE_NAME)
-                  .then((cache) => {
-                    cache.put(event.request, response);
-                  });
-              })
-              .catch(() => {
-                // Ignorar erros de rede ao atualizar o cache
-              });
-          }
-          
-          return cachedResponse;
-        }
-        
-        // Se não estiver no cache, buscar da rede
-        return fetch(event.request)
-          .then((response) => {
-            // Não cachear respostas com erro
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
-            
-            // Clonar a resposta para cachear
-            const responseToCache = response.clone();
-            
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                cache.put(event.request, responseToCache);
-              });
-            
-            return response;
-          })
-          .catch((error) => {
-            console.error('Service Worker: Erro ao buscar recurso:', error);
-            
-            // Retornar uma página offline para navegação
-            if (event.request.mode === 'navigate') {
-              return caches.match('/');
-            }
-            
-            return new Response('Recurso não disponível offline', {
-              status: 503,
-              statusText: 'Service Unavailable',
-              headers: new Headers({
-                'Content-Type': 'text/plain'
-              })
-            });
+    fetch(event.request)
+      .then((response) => {
+        // Cache successful responses
+        if (response.ok) {
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseClone);
           });
+        }
+        return response;
+      })
+      .catch(() => {
+        // Fallback para cache se offline
+        return caches.match(event.request).then((response) => {
+          return response || caches.match('/offline');
+        });
       })
   );
 });
