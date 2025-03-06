@@ -9,9 +9,15 @@ const VideoPlayerWrapper = memo(function VideoPlayerWrapper() {
   const playerLoaded = useRef(false);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+  
+  // Efeito para verificar se estamos no cliente
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
   
   useEffect(() => {
-    if (playerLoaded.current || typeof window === 'undefined') return;
+    if (!isClient || playerLoaded.current || typeof window === 'undefined') return;
     
     // Adicionar preload para recursos necessários
     const preloadResources = () => {
@@ -26,11 +32,15 @@ const VideoPlayerWrapper = memo(function VideoPlayerWrapper() {
       ];
       
       resources.forEach(resource => {
-        const link = document.createElement('link');
-        Object.entries(resource).forEach(([key, value]) => {
-          link[key] = value;
-        });
-        document.head.appendChild(link);
+        try {
+          const link = document.createElement('link');
+          Object.entries(resource).forEach(([key, value]) => {
+            link[key] = value;
+          });
+          document.head.appendChild(link);
+        } catch (e) {
+          console.warn('Erro ao adicionar preload:', e);
+        }
       });
     };
     
@@ -111,10 +121,10 @@ const VideoPlayerWrapper = memo(function VideoPlayerWrapper() {
       clearTimeout(timerRef);
       playerLoaded.current = false;
     };
-  }, []);
+  }, [isClient]); // Adicionado isClient como dependência
 
   return (
-    <div className={styles.videoContainer} ref={containerRef}>
+    <div className={styles.videoContainer} ref={containerRef} suppressHydrationWarning>
       {isLoading && (
         <div className={styles.videoPlaceholder}>
           <div className={styles.loadingSpinner}>
@@ -149,8 +159,18 @@ const VideoPlayerWrapper = memo(function VideoPlayerWrapper() {
         </div>
       )}
       
-      <div id="ifr_67c39663c033d97a19fff443_wrapper" data-player-wrapper="true" style={{ margin: '0 auto', width: '100%' }}>
-        <div style={{ padding: '56.25% 0 0 0', position: 'relative' }} id="ifr_67c39663c033d97a19fff443_aspect" data-player-aspect="true">
+      <div 
+        id="ifr_67c39663c033d97a19fff443_wrapper" 
+        data-player-wrapper="true" 
+        style={{ margin: '0 auto', width: '100%' }}
+        suppressHydrationWarning
+      >
+        <div 
+          style={{ padding: '56.25% 0 0 0', position: 'relative' }} 
+          id="ifr_67c39663c033d97a19fff443_aspect" 
+          data-player-aspect="true"
+          suppressHydrationWarning
+        >
           {/* O iframe será criado dinamicamente pelo JavaScript */}
         </div>
       </div>

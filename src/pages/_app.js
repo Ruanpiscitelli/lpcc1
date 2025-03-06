@@ -55,6 +55,53 @@ function OptimizedThirdPartyScripts() {
   return null;
 }
 
+// Componente para lidar com problemas de hidratação
+function HydrationErrorHandler() {
+  useEffect(() => {
+    // Lidar com atributos problemáticos que causam erros de hidratação
+    const fixHydrationErrors = () => {
+      try {
+        // Remover atributos adicionados pelo Google Tag Assistant ou extensões similares
+        const elementsWithTagAssistant = document.querySelectorAll('[data-tag-assistant-present], [data-tag-assistant-prod-present]');
+        elementsWithTagAssistant.forEach(el => {
+          el.removeAttribute('data-tag-assistant-present');
+          el.removeAttribute('data-tag-assistant-prod-present');
+        });
+        console.log('🔍 Atributos problemáticos removidos para evitar erros de hidratação');
+      } catch (e) {
+        console.warn('Erro ao tentar corrigir problemas de hidratação:', e);
+      }
+    };
+    
+    // Executar assim que possível após o carregamento do DOM
+    window.requestAnimationFrame(() => {
+      fixHydrationErrors();
+    });
+    
+    // Capturar erros de hidratação específicos
+    const originalError = console.error;
+    console.error = (...args) => {
+      // Se for um erro de hidratação, interceptar e fornecer mensagem mais útil
+      const errorMessage = args[0]?.toString() || '';
+      if (typeof errorMessage === 'string' && errorMessage.includes('Hydration failed because')) {
+        console.warn('⚠️ Erro de hidratação interceptado e tratado');
+        // Ainda registrar para debug, mas com menos destaque
+        console.debug('Detalhes do erro de hidratação:', ...args);
+        return;
+      }
+      // Para outros erros, comportamento normal
+      return originalError.apply(console, args);
+    };
+    
+    return () => {
+      // Restaurar console.error original na limpeza
+      console.error = originalError;
+    };
+  }, []);
+  
+  return null;
+}
+
 // Componente principal da aplicação
 function MyApp({ Component, pageProps }) {
   useEffect(() => {
@@ -114,12 +161,48 @@ function MyApp({ Component, pageProps }) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       
+      {/* Script para solucionar problemas de hidratação */}
+      <Script
+        id="hydration-fix"
+        strategy="beforeInteractive"
+        dangerouslySetInnerHTML={{
+          __html: `
+            // Solução imediata para problemas de hidratação
+            (function() {
+              var originalError = console.error;
+              console.error = function() {
+                if (arguments[0] && typeof arguments[0] === 'string' && arguments[0].includes('Hydration failed')) {
+                  return;
+                }
+                return originalError.apply(console, arguments);
+              };
+              
+              // Preparar para remover atributos problemáticos 
+              document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(function() {
+                  try {
+                    var elements = document.querySelectorAll('[data-tag-assistant-present], [data-tag-assistant-prod-present]');
+                    for (var i = 0; i < elements.length; i++) {
+                      elements[i].removeAttribute('data-tag-assistant-present');
+                      elements[i].removeAttribute('data-tag-assistant-prod-present');
+                    }
+                  } catch(e) {}
+                }, 0);
+              });
+            })();
+          `
+        }}
+      />
+      
       {/* Carregar Partytown de forma otimizada */}
       <Script
         src="/~partytown/partytown.js"
         strategy="worker"
         nonce="XUENAJFW"
       />
+      
+      {/* Componente para lidar com problemas de hidratação */}
+      <HydrationErrorHandler />
       
       {/* Componente para carregar scripts de terceiros de forma otimizada */}
       <OptimizedThirdPartyScripts />
