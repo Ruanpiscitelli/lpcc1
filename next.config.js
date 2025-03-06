@@ -9,11 +9,6 @@ const nextConfig = {
   // Desativar SSR/SSG para todos os componentes usando 'use client'
   reactStrictMode: true,
   
-  // Configurar o servidor para usar a porta 3000
-  serverOptions: {
-    port: 3000
-  },
-  
   // Configurar CORS para recursos externos
   async headers() {
     return [
@@ -23,6 +18,10 @@ const nextConfig = {
           { key: 'Access-Control-Allow-Origin', value: '*' },
           { key: 'Access-Control-Allow-Methods', value: 'GET,OPTIONS,PATCH,DELETE,POST,PUT' },
           { key: 'Access-Control-Allow-Headers', value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version' },
+          { key: 'X-DNS-Prefetch-Control', value: 'on' },
+          { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' }
         ],
       },
     ]
@@ -44,6 +43,31 @@ const nextConfig = {
     return config;
   },
 
+  // Otimizações de segurança
+  poweredByHeader: false,
+  generateEtags: true,
+  distDir: '.next',
+  cleanDistDir: true,
+
+  // Compressão para produção
+  compress: true,
+  
+  // Otimização para produção
+  swcMinify: true,
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
+
+  // Desabilitar indicadores de desenvolvimento
+  devIndicators: {
+    buildActivity: false,
+    buildActivityPosition: 'bottom-right',
+    staticPrerender: false,
+    autoPrerender: false,
+    indicator: false,
+    showRemovedTargets: false,
+  },
+
   // Otimizações de Imagem
   images: {
     formats: ['image/avif', 'image/webp'],
@@ -58,28 +82,6 @@ const nextConfig = {
         hostname: '**',
       },
     ],
-  },
-
-  // Otimizações gerais
-  compress: true,
-  poweredByHeader: false,
-  generateEtags: true,
-  distDir: '.next',
-  cleanDistDir: true,
-
-  // Desabilitar indicadores de desenvolvimento
-  devIndicators: {
-    buildActivity: false,
-    buildActivityPosition: 'bottom-right',
-    staticPrerender: false,
-    autoPrerender: false,
-    indicator: false,
-    showRemovedTargets: false,
-  },
-
-  // Otimizações de compilação
-  compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
   },
 
   // Otimização de webpack

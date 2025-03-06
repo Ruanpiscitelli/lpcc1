@@ -4,10 +4,11 @@
   "private": true,
   "scripts": {
     "copy-partytown": "node scripts/copy-partytown.js",
-    "dev": "npm run copy-partytown && next dev",
+    "dev": "npm run copy-partytown && next dev -p 3000",
+    "dev:clean": "npm run copy-partytown && next dev -p 3000 --turbo",
     "build": "npm run copy-partytown && next build",
     "analyze": "ANALYZE=true next build",
-    "start": "next start",
+    "start": "next start -p 3000",
     "lint": "next lint",
     "typecheck": "tsc --noEmit"
   },
