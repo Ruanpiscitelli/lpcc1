@@ -15,21 +15,25 @@ const nextConfig = {
       {
         source: '/:path*',
         headers: [
-          { key: 'Access-Control-Allow-Origin', value: '*' },
-          { key: 'Access-Control-Allow-Methods', value: 'GET,OPTIONS,PATCH,DELETE,POST,PUT' },
-          { key: 'Access-Control-Allow-Headers', value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version' },
-          { key: 'X-DNS-Prefetch-Control', value: 'on' },
-          { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
-          { key: 'X-Content-Type-Options', value: 'nosniff' },
-          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-          // Configuração de CSP mais permissiva
-          { 
-            key: 'Content-Security-Policy', 
-            value: "default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://scripts.converteai.net https://cdn.converteai.net https://*.googleapis.com https://*.googletagmanager.com https://*.google-analytics.com https://*.facebook.net https://connect.facebook.net; connect-src 'self' https: wss:; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com; frame-src 'self' https: blob:; media-src 'self' https: blob:; object-src 'none';" 
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*'
+          },
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET,OPTIONS,PATCH,DELETE,POST,PUT'
+          },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value: '*'
+          },
+          {
+            key: 'Content-Security-Policy',
+            value: "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval' https://scripts.converteai.net https://cdn.converteai.net https://*.converteai.net; connect-src * 'unsafe-inline' https: wss:; img-src * data: blob: https:; style-src * 'unsafe-inline' https:; font-src * data: https:; frame-src * https: blob:; media-src * https: blob:; object-src 'none';"
           }
-        ],
-      },
-    ]
+        ]
+      }
+    ];
   },
   
   // Configurar redirecionamentos
@@ -48,54 +52,12 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'images.converteai.net',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'cdn.converteai.net',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'scripts.converteai.net',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'cdnjs.cloudflare.com',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'fonts.googleapis.com',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'fonts.gstatic.com',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: '*.googletagmanager.com',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: '*.google-analytics.com',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: '*.facebook.net',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: '**',
-      },
+        hostname: '**.converteai.net',
+        port: '',
+        pathname: '/**'
+      }
     ],
+    domains: ['scripts.converteai.net', 'cdn.converteai.net', 'images.converteai.net'],
   },
   
   // Webpack para resolver problemas de build

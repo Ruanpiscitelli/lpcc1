@@ -72,7 +72,7 @@ const VideoPlayerWrapper = memo(function VideoPlayerWrapper() {
         }
         
         // Verificar se já existe um script sendo carregado
-        const scriptUrl = "/scripts/converteai/lib/js/smartplayer/v1/sdk.min.js";
+        const scriptUrl = "https://scripts.converteai.net/lib/js/smartplayer/v1/sdk.min.js";
         const existingScript = document.querySelector(`script[src*="${scriptUrl}"]`);
         if (existingScript) {
           console.log('SDK já está sendo carregado, aguardando...');
@@ -89,7 +89,8 @@ const VideoPlayerWrapper = memo(function VideoPlayerWrapper() {
             crossOrigin: "anonymous",
             referrerPolicy: "origin",
             importance: "high",
-            fetchPriority: 'fetchPriority' in HTMLScriptElement.prototype ? "high" : undefined
+            fetchPriority: 'fetchPriority' in HTMLScriptElement.prototype ? "high" : undefined,
+            'data-id': '6759dd77d07a5ff5c7ca43f4'
           },
           createIframe,
           (error) => {
@@ -119,7 +120,7 @@ const VideoPlayerWrapper = memo(function VideoPlayerWrapper() {
         console.log('Criando iframe para o player...');
         
         // Verificar se o iframe já existe
-        const existingIframe = document.getElementById('ifr_67c39663c033d97a19fff443');
+        const existingIframe = document.getElementById('ifr_6759dd77d07a5ff5c7ca43f4');
         if (existingIframe) {
           console.log('Iframe já existe, usando existente');
           setIsLoading(false);
@@ -129,11 +130,11 @@ const VideoPlayerWrapper = memo(function VideoPlayerWrapper() {
         
         // Criando o iframe diretamente
         const iframe = document.createElement('iframe');
-        iframe.id = 'ifr_67c39663c033d97a19fff443';
+        iframe.id = 'ifr_6759dd77d07a5ff5c7ca43f4';
         iframe.frameBorder = '0';
         iframe.allowFullscreen = true;
         iframe.allow = "autoplay; encrypted-media; fullscreen; picture-in-picture";
-        iframe.src = 'https://scripts.converteai.net/9f42948f-1e82-4960-b793-0f0c80350dc8/players/67c39663c033d97a19fff443/embed.html';
+        iframe.src = 'https://scripts.converteai.net/9f42948f-1e82-4960-b793-0f0c80350dc8/players/6759dd77d07a5ff5c7ca43f4/embed.html';
         iframe.style.position = 'absolute';
         iframe.style.top = '0';
         iframe.style.left = '0';
@@ -169,7 +170,7 @@ const VideoPlayerWrapper = memo(function VideoPlayerWrapper() {
         };
         
         // Limpa conteúdo existente e adiciona iframe
-        const aspectRatio = document.getElementById('ifr_67c39663c033d97a19fff443_aspect');
+        const aspectRatio = document.getElementById('ifr_6759dd77d07a5ff5c7ca43f4_aspect');
         if (aspectRatio) {
           aspectRatio.innerHTML = '';
           aspectRatio.appendChild(iframe);
@@ -281,14 +282,14 @@ const VideoPlayerWrapper = memo(function VideoPlayerWrapper() {
       )}
       
       <div 
-        id="ifr_67c39663c033d97a19fff443_wrapper" 
+        id="ifr_6759dd77d07a5ff5c7ca43f4_wrapper" 
         data-player-wrapper="true" 
         style={{ margin: '0 auto', width: '100%' }}
         suppressHydrationWarning
       >
         <div 
           style={{ padding: '56.25% 0 0 0', position: 'relative' }} 
-          id="ifr_67c39663c033d97a19fff443_aspect" 
+          id="ifr_6759dd77d07a5ff5c7ca43f4_aspect" 
           data-player-aspect="true"
           suppressHydrationWarning
         >

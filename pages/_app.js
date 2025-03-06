@@ -111,6 +111,8 @@ export default function MyApp({ Component, pageProps }) {
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
         <meta name="theme-color" content="#ffffff" />
+        <link rel="icon" type="image/png" href="/favicon.png" />
+        <link rel="apple-touch-icon" href="/favicon.png" />
         
         {/* Preload de fontes críticas */}
         <link

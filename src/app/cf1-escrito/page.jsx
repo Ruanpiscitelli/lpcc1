@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { Suspense } from 'react';
-import LandingPageCF1 from '../../components/LandingPageCF1';
+import ClientExitPopupWrapper from '../../components/ClientExitPopupWrapper';
+import TranscriptPage from '../../components/TranscriptPage';
 
 // Componente de fallback para o Suspense
 const PageLoading = () => (
@@ -20,8 +21,13 @@ const PageLoading = () => (
 
 export default function Page() {
   return (
-    <Suspense fallback={<PageLoading />}>
-      <LandingPageCF1 />
-    </Suspense>
+    <>
+      <Suspense fallback={<PageLoading />}>
+        <TranscriptPage />
+      </Suspense>
+      
+      {/* Componente de Exit Popup */}
+      <ClientExitPopupWrapper />
+    </>
   );
 } 

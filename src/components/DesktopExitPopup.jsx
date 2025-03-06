@@ -13,8 +13,8 @@ const SESSION_DURATION = 30000; // 30 segundos na página
 const DesktopExitPopup = () => {
   const pathname = usePathname();
   
-  // Se não estiver nas páginas corretas, retorna null imediatamente
-  if (pathname !== '/cf1-escrito' && pathname !== '/cf2') return null;
+  // Se não estiver em nenhuma das rotas corretas, retorna null imediatamente
+  if (!['/cf1', '/cf2', '/cf1-escrito'].includes(pathname)) return null;
   
   const [showPopup, setShowPopup] = useState(false);
   const [hasShownPopup, setHasShownPopup] = useState(false);
@@ -218,37 +218,75 @@ const DesktopExitPopup = () => {
           ×
         </button>
         
-        <div className={styles.popupHeader}>
-          <h2 className={styles.exitPopupTitle}>Espere um Momento!</h2>
-          <h3 className={styles.exitPopupSubtitle}>Não Perca Esta Oportunidade Única</h3>
-        </div>
-        
-        <div className={styles.exitPopupText}>
-          <p>Antes de sair, você precisa conhecer esta oportunidade especial que está transformando a vida de milhares de pessoas.</p>
-          
-          <div className={styles.offerHighlight}>
-            <span className={styles.discount}>OFERTA ESPECIAL</span>
-            <p>Sistema Automático de Renda</p>
-            <span className={styles.timeLimit}>Vagas Limitadas</span>
-          </div>
-          
-          <p>Junte-se aos milhares de brasileiros que já estão gerando R$5.000 por semana com apenas 3 cliques, usando nossa tecnologia que mapeia o mercado 24h por dia.</p>
-        </div>
-        
-        <div className={styles.exitPopupButtons}>
-          <button 
-            className={styles.continueButton} 
-            onClick={handleDiscountClick}
-          >
-            QUERO COMEÇAR AGORA!
-          </button>
-          <button 
-            className={styles.noThanksButton} 
-            onClick={() => closePopup('declined_offer')}
-          >
-            Não, prefiro perder esta oportunidade
-          </button>
-        </div>
+        {pathname === '/cf1-escrito' ? (
+          <>
+            <div className={styles.popupHeader}>
+              <h2 className={styles.exitPopupTitle}>PARE AGORA!</h2>
+              <h3 className={styles.exitPopupSubtitle}>Sua Aposentadoria Está em Risco</h3>
+            </div>
+            
+            <div className={styles.exitPopupText}>
+              <p>Não feche esta página! Enquanto você hesita, sua aposentadoria está perdendo valor a cada segundo.</p>
+              
+              <div className={styles.offerHighlight}>
+                <span className={styles.discount} style={{ color: '#ff0000' }}>70% OFF</span>
+                <p>No Sistema Automático de Renda</p>
+                <span className={styles.timeLimit}>ÚLTIMA CHANCE - Oferta expira em breve!</span>
+              </div>
+              
+              <p>Junte-se aos milhares de servidores que já estão protegendo seu futuro financeiro com nosso sistema que gera R$5.000 por semana de forma automática!</p>
+            </div>
+            
+            <div className={styles.exitPopupButtons}>
+              <button 
+                className={styles.continueButton} 
+                onClick={handleDiscountClick}
+              >
+                QUERO GARANTIR MEU FUTURO AGORA!
+              </button>
+              <button 
+                className={styles.noThanksButton} 
+                onClick={() => closePopup('declined_offer')}
+              >
+                Não, prefiro arriscar minhas economias
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className={styles.popupHeader}>
+              <h2 className={styles.exitPopupTitle}>Espere!</h2>
+              <h3 className={styles.exitPopupSubtitle}>Não Perca Esta Oportunidade Única</h3>
+            </div>
+            
+            <div className={styles.exitPopupText}>
+              <p>Antes de sair, queremos oferecer um desconto exclusivo só para você.</p>
+              
+              <div className={styles.offerHighlight}>
+                <span className={styles.discount}>20% OFF</span>
+                <p>Em sua primeira compra</p>
+                <span className={styles.timeLimit}>Válido por 24 horas</span>
+              </div>
+              
+              <p>Aproveite esta oportunidade única para experimentar nosso produto com um desconto especial!</p>
+            </div>
+            
+            <div className={styles.exitPopupButtons}>
+              <button 
+                className={styles.continueButton} 
+                onClick={handleDiscountClick}
+              >
+                QUERO COMEÇAR AGORA!
+              </button>
+              <button 
+                className={styles.noThanksButton} 
+                onClick={() => closePopup('declined_offer')}
+              >
+                Não, prefiro perder esta oportunidade
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>,
     document.body

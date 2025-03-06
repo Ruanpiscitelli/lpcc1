@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import styles from '../styles/MobileExitPopup.module.css';
+import { usePathname } from 'next/navigation';
 
 // Configurações do exit intent para mobile
 const SCROLL_THRESHOLD = 40; // Reduzido para maior sensibilidade
@@ -12,6 +13,11 @@ const SESSION_DURATION = 45000; // 45 segundos na página
 const POPUP_COOLDOWN = 24 * 60 * 60 * 1000; // 24 horas em milissegundos
 
 const MobileExitPopup = () => {
+  const pathname = usePathname();
+  
+  // Se não estiver em nenhuma das rotas corretas, retorna null imediatamente
+  if (!['/cf1', '/cf2', '/cf1-escrito'].includes(pathname)) return null;
+
   const [showPopup, setShowPopup] = useState(false);
   const [hasShownPopup, setHasShownPopup] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -275,36 +281,17 @@ const MobileExitPopup = () => {
 
   // Determinar qual componente renderizar baseado no estilo selecionado
   const renderPopupContent = () => {
-    // Conteúdo personalizado baseado na URL atual
-    const getPopupContent = () => {
-      const currentPath = window.location.pathname;
-      
-      if (currentPath.includes('/produtos')) {
-        return {
-          title: "Espere! Produtos com 15% de desconto!",
-          subtitle: "Oferta exclusiva para você",
-          message: "Aproveite esta oferta exclusiva antes de sair."
-        };
-      } else if (currentPath.includes('/blog')) {
-        return {
-          title: "Gostou do Conteúdo?",
-          subtitle: "Tem muito mais!",
-          message: "Assine nossa newsletter para receber artigos exclusivos."
-        };
-      }
-      
-      // Conteúdo padrão
-      return {
-        title: "Espere!",
-        subtitle: "Temos uma oferta especial para você",
-        message: "Antes de sair, queremos oferecer um desconto exclusivo só para você."
-      };
+    const content = pathname === '/cf1-escrito' ? {
+      title: "PARE AGORA!",
+      subtitle: "Sua Aposentadoria Está em Risco",
+      message: "Não feche esta página! Enquanto você hesita, sua aposentadoria está perdendo valor a cada segundo."
+    } : {
+      title: "Espere!",
+      subtitle: "Não Perca Esta Oportunidade Única",
+      message: "Antes de sair, queremos oferecer um desconto exclusivo só para você."
     };
     
-    const content = getPopupContent();
-    
     if (popupStyle === "bottomBanner") {
-      // Versão banner para uma experiência menos intrusiva
       return (
         <div className={styles.bottomBanner} ref={popupRef}>
           <button 
@@ -318,66 +305,89 @@ const MobileExitPopup = () => {
           <div className={styles.bannerContent}>
             <div className={styles.bannerText}>
               <h3 className={styles.bannerTitle}>{content.title}</h3>
-              <p>{content.message}</p>
+              {pathname === '/cf1-escrito' ? (
+                <p>Última chance de garantir {' '}
+                  <span style={{ color: '#ff0000', fontWeight: 'bold' }}>70% OFF</span>
+                  {' '} no Sistema Automático de Renda!
+                </p>
+              ) : (
+                <p>Aproveite {' '}
+                  <span style={{ fontWeight: 'bold' }}>20% OFF</span>
+                  {' '} na sua primeira compra!
+                </p>
+              )}
             </div>
             
             <button 
               className={styles.bannerButton} 
               onClick={handleDiscountClick}
             >
-              APROVEITAR
+              {pathname === '/cf1-escrito' ? 'GARANTIR FUTURO AGORA' : 'APROVEITAR 20% OFF'}
             </button>
-          </div>
-        </div>
-      );
-    } else {
-      // Versão overlay original
-      return (
-        <div className={styles.exitPopupOverlay}>
-          <div className={styles.exitPopupContent} ref={popupRef}>
-            <button 
-              className={styles.closeButton} 
-              onClick={() => closePopup('clicked_close')}
-              aria-label="Fechar popup"
-            >
-              ×
-            </button>
-            
-            <div className={styles.popupHeader}>
-              <h2 className={styles.exitPopupTitle}>{content.title}</h2>
-              <h3 className={styles.exitPopupSubtitle}>{content.subtitle}</h3>
-            </div>
-            
-            <div className={styles.exitPopupText}>
-              <p>{content.message}</p>
-              
-              <div className={styles.offerHighlight}>
-                <span className={styles.discount}>20% OFF</span>
-                <p>Em sua primeira compra</p>
-                <span className={styles.timeLimit}>Válido por 24 horas</span>
-              </div>
-              
-              <p>Aproveite esta oportunidade única para experimentar nosso produto com um desconto especial!</p>
-            </div>
-            
-            <div className={styles.exitPopupButtons}>
-              <button 
-                className={styles.continueButton} 
-                onClick={handleDiscountClick}
-              >
-                Quero aproveitar o desconto!
-              </button>
-              <button 
-                className={styles.noThanksButton} 
-                onClick={() => closePopup('declined_offer')}
-              >
-                Não, obrigado
-              </button>
-            </div>
           </div>
         </div>
       );
     }
+    
+    return (
+      <div className={styles.exitPopupOverlay}>
+        <div className={styles.exitPopupContent} ref={popupRef}>
+          <button 
+            className={styles.closeButton} 
+            onClick={() => closePopup('clicked_close')}
+            aria-label="Fechar popup"
+          >
+            ×
+          </button>
+          
+          <div className={styles.popupHeader}>
+            <h2 className={styles.exitPopupTitle}>{content.title}</h2>
+            <h3 className={styles.exitPopupSubtitle}>{content.subtitle}</h3>
+          </div>
+          
+          <div className={styles.exitPopupText}>
+            <p>{content.message}</p>
+            
+            <div className={styles.offerHighlight}>
+              {pathname === '/cf1-escrito' ? (
+                <>
+                  <span className={styles.discount} style={{ color: '#ff0000' }}>70% OFF</span>
+                  <p>No Sistema Automático de Renda</p>
+                  <span className={styles.timeLimit}>ÚLTIMA CHANCE - Oferta expira em breve!</span>
+                </>
+              ) : (
+                <>
+                  <span className={styles.discount}>20% OFF</span>
+                  <p>Em sua primeira compra</p>
+                  <span className={styles.timeLimit}>Válido por 24 horas</span>
+                </>
+              )}
+            </div>
+            
+            {pathname === '/cf1-escrito' ? (
+              <p>Junte-se aos milhares de servidores que já estão protegendo seu futuro financeiro com nosso sistema que gera R$5.000 por semana de forma automática!</p>
+            ) : (
+              <p>Aproveite esta oportunidade única para experimentar nosso produto com um desconto especial!</p>
+            )}
+          </div>
+          
+          <div className={styles.exitPopupButtons}>
+            <button 
+              className={styles.continueButton} 
+              onClick={handleDiscountClick}
+            >
+              {pathname === '/cf1-escrito' ? 'QUERO GARANTIR MEU FUTURO AGORA!' : 'QUERO COMEÇAR AGORA!'}
+            </button>
+            <button 
+              className={styles.noThanksButton} 
+              onClick={() => closePopup('declined_offer')}
+            >
+              {pathname === '/cf1-escrito' ? 'Não, prefiro arriscar minhas economias' : 'Não, prefiro perder esta oportunidade'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   // Renderizar o popup usando createPortal para garantir que ele seja renderizado no body

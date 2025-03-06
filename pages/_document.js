@@ -5,6 +5,7 @@ class MyDocument extends Document {
     return (
       <Html lang="pt-BR">
         <Head>
+          <link rel="icon" href="/favicon.png" />
           {/* Inline Critical CSS para a LandingPage */}
           <style dangerouslySetInnerHTML={{ __html: `
             /* Reset básico */

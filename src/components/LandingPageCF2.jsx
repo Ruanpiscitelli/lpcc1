@@ -4,7 +4,7 @@ import React, { useEffect, memo, lazy, Suspense } from 'react';
 import Link from 'next/link';
 import styles from '../styles/LandingPage.module.css';
 import { optimizeBFCache } from '../utils/performance-utils';
-import VideoPlayer from './VideoPlayerWrapper';
+import VideoPlayerCF2 from './VideoPlayerCF2';
 import { loadScriptWithFallback } from '../utils/fallback-scripts';
 
 // Lazy loading para componentes não críticos
@@ -86,7 +86,7 @@ const Footer = memo(() => (
 Footer.displayName = 'Footer';
 
 // Componente principal memoizado
-const LandingPage = memo(function LandingPage() {
+const LandingPageCF2 = memo(function LandingPageCF2() {
   useEffect(() => {
     // Otimizar para back/forward cache
     optimizeBFCache();
@@ -196,7 +196,7 @@ const LandingPage = memo(function LandingPage() {
               
               {/* Wrapper do vídeo - estrutura otimizada para melhorar o LCP */}
               <div className={`${styles.borderWrapper} player-wrapper`}>
-                <VideoPlayer />
+                <VideoPlayerCF2 />
               </div>
             </div>
           </div>
@@ -209,6 +209,6 @@ const LandingPage = memo(function LandingPage() {
   );
 });
 
-LandingPage.displayName = 'LandingPage';
+LandingPageCF2.displayName = 'LandingPageCF2';
 
-export default LandingPage;
+export default LandingPageCF2; 

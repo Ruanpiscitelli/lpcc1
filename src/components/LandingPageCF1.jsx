@@ -4,12 +4,12 @@ import React, { useEffect, memo, lazy, Suspense } from 'react';
 import Link from 'next/link';
 import styles from '../styles/LandingPage.module.css';
 import { optimizeBFCache } from '../utils/performance-utils';
-import VideoPlayer from './VideoPlayerWrapper';
+import VideoPlayerCF1 from './VideoPlayerCF1';
 import { loadScriptWithFallback } from '../utils/fallback-scripts';
+import ClientExitPopupWrapper from './ClientExitPopupWrapper';
 
 // Lazy loading para componentes não críticos
 const FooterAccordion = lazy(() => import('./FooterAccordion'));
-const ExitPopup = lazy(() => import('./ExitPopup'));
 
 // Componente de fallback para componentes lazy
 const FallbackComponent = () => <div style={{ minHeight: '50px' }}></div>;
@@ -76,9 +76,9 @@ const Footer = memo(() => (
       <span>Copyright © 2025 - Todos os direitos reservados.</span>
     </p>
     <div className={styles.footerLinks}>
-      <a href="/cf2/terms" aria-label="Termos e Condições">Termos e Condições</a>
+      <a href="/cf1/terms" aria-label="Termos e Condições">Termos e Condições</a>
       <span>|</span>
-      <a href="/cf2/privacy" aria-label="Política de Privacidade">Política de Privacidade</a>
+      <a href="/cf1/privacy" aria-label="Política de Privacidade">Política de Privacidade</a>
     </div>
   </div>
 ));
@@ -86,102 +86,69 @@ const Footer = memo(() => (
 Footer.displayName = 'Footer';
 
 // Componente principal memoizado
-const LandingPage = memo(function LandingPage() {
+const LandingPageCF1 = memo(() => {
   useEffect(() => {
-    // Otimizar para back/forward cache
+    // Otimizar para Back/Forward Cache
     optimizeBFCache();
-    
-    // Pré-conectar a domínios importantes - movido para um módulo separado
-    const preconnectToDomains = (domains) => {
-      if (typeof document === 'undefined') return;
-      
-      const fragment = document.createDocumentFragment();
-      domains.forEach(domain => {
-        if (!document.querySelector(`link[rel="preconnect"][href="${domain}"]`)) {
-          const link = document.createElement('link');
-          link.rel = 'preconnect';
-          link.href = domain;
-          link.crossOrigin = 'anonymous';
-          fragment.appendChild(link);
-        }
-      });
-      
-      document.head.appendChild(fragment);
-    };
-    
-    // Pré-conectar apenas aos domínios mais críticos inicialmente
-    preconnectToDomains([
-      'https://images.converteai.net',
-      'https://scripts.converteai.net',
-      'https://cdn.converteai.net'
-    ]);
-    
-    // Pré-carregar recursos críticos com prioridade
-    const preloadCriticalResources = () => {
-      const resources = [
-        { href: 'https://scripts.converteai.net/9f42948f-1e82-4960-b793-0f0c80350dc8/players/6759dd77d07a5ff5c7ca43f4/embed.html', as: 'document', rel: 'preload' },
-        { href: 'https://scripts.converteai.net/lib/js/smartplayer/v1/sdk.min.js', as: 'script', rel: 'preload', 'data-id': '6759dd77d07a5ff5c7ca43f4' }
-      ];
-      
-      const fragment = document.createDocumentFragment();
-      resources.forEach(resource => {
-        if (!document.querySelector(`link[rel="${resource.rel}"][href="${resource.href}"]`)) {
-          const link = document.createElement('link');
-          link.rel = resource.rel;
-          link.href = resource.href;
-          link.as = resource.as;
-          fragment.appendChild(link);
-        }
-      });
-      
-      document.head.appendChild(fragment);
-    };
-    
-    // Executar preload após um pequeno atraso para não competir com recursos críticos
-    setTimeout(preloadCriticalResources, 300);
 
-    // Carregar recursos não críticos apenas quando o navegador estiver ocioso
-    const loadNonCriticalResources = () => {
-      // Pré-conectar a domínios secundários
-      preconnectToDomains(['https://cdnjs.cloudflare.com']);
-      
-      // Carregar lazysizes de forma otimizada
-      if (!document.querySelector('script[src*="lazysizes"]')) {
-        loadScriptWithFallback(
-          'https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.3.2/lazysizes.min.js',
-          {
-            async: true,
-            crossOrigin: "anonymous",
-            referrerPolicy: "origin"
-          },
-          () => console.log('Lazysizes carregado com sucesso'),
-          (error) => console.error('Falha ao carregar lazysizes:', error)
-        );
+    // Preconnect com domínios críticos
+    const preconnectUrls = [
+      'https://scripts.converteai.net',
+      'https://cdn.converteai.net',
+      'https://player-vz-6759dd77d-07a.tv.pandavideo.com.br',
+      'https://player-vz-6759dd77d-07a.tv.pandavideo.com.br'
+    ];
+
+    preconnectUrls.forEach(url => {
+      const link = document.createElement('link');
+      link.rel = 'preconnect';
+      link.href = url;
+      link.crossOrigin = 'anonymous';
+      document.head.appendChild(link);
+    });
+
+    // Preload recursos críticos
+    const preloadResources = [
+      {
+        url: 'https://scripts.converteai.net/lib/js/smartplayer/v1/sdk.min.js',
+        as: 'script'
+      },
+      {
+        url: 'https://cdn.converteai.net/lib/js/smartplayer/v1/smartplayer.min.js',
+        as: 'script'
       }
-    };
-    
-    // Usar requestIdleCallback para carregar recursos não críticos
+    ];
+
+    preloadResources.forEach(resource => {
+      const link = document.createElement('link');
+      link.rel = 'preload';
+      link.href = resource.url;
+      link.as = resource.as;
+      link.crossOrigin = 'anonymous';
+      document.head.appendChild(link);
+    });
+
+    // Carregar recursos não críticos quando o navegador estiver ocioso
     if ('requestIdleCallback' in window) {
-      window.requestIdleCallback(loadNonCriticalResources, { timeout: 2000 });
+      requestIdleCallback(() => {
+        // Carregar recursos não críticos aqui
+      });
     } else {
-      // Fallback para navegadores que não suportam requestIdleCallback
-      setTimeout(loadNonCriticalResources, 1000);
+      setTimeout(() => {
+        // Fallback para navegadores que não suportam requestIdleCallback
+      }, 1);
     }
-    
-    // Limpar event listeners e timeouts
+
+    // Cleanup
     return () => {
-      // Cleanup code if needed
+      // Remover elementos criados dinamicamente se necessário
     };
   }, []);
-  
+
   return (
     <>
-      {/* Exit Popup - carregado de forma lazy com prioridade baixa */}
-      <Suspense fallback={null}>
-        {typeof window !== 'undefined' && window.innerWidth > 768 ? (
-          <ExitPopup />
-        ) : null}
-      </Suspense>
+      {/* Exit Popup */}
+      <ClientExitPopupWrapper />
       
       <div className={styles.frame}>
         <div className={styles.body}>
@@ -196,7 +163,7 @@ const LandingPage = memo(function LandingPage() {
               
               {/* Wrapper do vídeo - estrutura otimizada para melhorar o LCP */}
               <div className={`${styles.borderWrapper} player-wrapper`}>
-                <VideoPlayer />
+                <VideoPlayerCF1 />
               </div>
             </div>
           </div>
@@ -209,6 +176,6 @@ const LandingPage = memo(function LandingPage() {
   );
 });
 
-LandingPage.displayName = 'LandingPage';
+LandingPageCF1.displayName = 'LandingPageCF1';
 
-export default LandingPage;
+export default LandingPageCF1; 

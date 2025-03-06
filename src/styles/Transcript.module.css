@@ -80,48 +80,38 @@
 }
 
 .ctaContainer {
-  margin-top: 40px;
   text-align: center;
+  margin: 40px 0;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
 }
 
 .ctaButton {
   display: inline-block;
-  background: linear-gradient(180deg, #d20000 0%, #a70000 100%);
-  color: white;
-  font-family: Helvetica, "Helvetica Neue Lt Std", Arial, sans-serif;
-  font-weight: 700;
-  font-size: 18px;
-  padding: 15px 30px;
-  border-radius: 5px;
+  padding: 20px 40px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+  background-color: #28a745;
+  border-radius: 8px;
   text-decoration: none;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: background-color 0.3s ease;
+  text-transform: uppercase;
+  margin-bottom: 15px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.blueButton {
-  background: linear-gradient(180deg, #0066cc 0%, #004d99 100%);
-  margin: 10px 0;
-  width: 100%;
-  max-width: 500px;
-  text-align: center;
-}
-
-.installmentText {
-  font-size: 18px;
-  font-weight: 600;
-  margin: 15px 0;
-  color: #333;
-  text-align: center;
 }
 
 .ctaButton:hover {
+  background-color: #218838;
   transform: translateY(-2px);
-  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
 }
 
-.ctaButton:active {
-  transform: translateY(0);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+.installmentText {
+  font-size: 20px;
+  color: #666;
+  margin: 0;
 }
 
 /* Responsividade */
@@ -146,9 +136,12 @@
   }
   
   .ctaButton {
-    font-size: 16px;
-    padding: 12px 25px;
-    width: 100%;
+    padding: 15px 30px;
+    font-size: 20px;
+  }
+
+  .installmentText {
+    font-size: 18px;
   }
 }
 
