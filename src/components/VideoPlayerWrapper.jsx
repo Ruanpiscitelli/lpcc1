@@ -1,6 +1,5 @@
 'use client';
 
-import dynamic from 'next/dynamic';
 import React, { useEffect, useRef, memo } from 'react';
 import styles from '../styles/VideoPlayer.module.css';
 import { deferThirdPartyResources } from '../utils/performance-utils';
@@ -25,15 +24,9 @@ const LoadingComponent = memo(() => (
 
 LoadingComponent.displayName = 'LoadingComponent';
 
-// Componente que será renderizado apenas no cliente
-const NoSSR = dynamic(() => Promise.resolve(({ children }) => <>{children}</>), {
-  ssr: false,
-  loading: () => <LoadingComponent />
-});
-
 // Componente otimizado para o player de vídeo
 const VideoPlayerWrapper = memo(function VideoPlayerWrapper() {
-  const iframeRef = useRef(null);
+  const scriptRef = useRef(null);
   const containerRef = useRef(null);
   const playerLoaded = useRef(false);
 
@@ -46,39 +39,51 @@ const VideoPlayerWrapper = memo(function VideoPlayerWrapper() {
       if (!containerRef.current) return;
       
       try {
-        // Criar o iframe apenas quando necessário
-        const iframe = document.createElement('iframe');
-        iframe.id = 'video-player';
-        iframe.title = 'Vídeo Explicativo';
-        iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
-        iframe.allowFullscreen = true;
-        iframe.loading = 'lazy'; // Usar carregamento lazy para o iframe
-        iframe.src = 'https://scripts.converteai.net/9f42948f-1e82-4960-b793-0f0c80350dc8/players/6759dd77d07a5ff5c7ca43f4/embed.html';
-        iframe.className = styles.videoIframe;
-        
-        // Limpar o container antes de adicionar o iframe
+        // Limpar o container antes de adicionar os novos elementos
         if (containerRef.current.firstChild) {
           containerRef.current.innerHTML = '';
         }
+
+        // Criar a estrutura do player conforme fornecido
+        const wrapper = document.createElement('div');
+        wrapper.id = 'ifr_6759dd77d07a5ff5c7ca43f4_wrapper';
+        wrapper.style.margin = '0 auto';
+        wrapper.style.width = '100%';
+
+        const aspectRatio = document.createElement('div');
+        aspectRatio.id = 'ifr_6759dd77d07a5ff5c7ca43f4_aspect';
+        aspectRatio.style.padding = '56.25% 0 0 0';
+        aspectRatio.style.position = 'relative';
+
+        const iframe = document.createElement('iframe');
+        iframe.id = 'ifr_6759dd77d07a5ff5c7ca43f4';
+        iframe.frameBorder = '0';
+        iframe.allowFullscreen = true;
+        iframe.src = 'https://scripts.converteai.net/9f42948f-1e82-4960-b793-0f0c80350dc8/players/6759dd77d07a5ff5c7ca43f4/embed.html';
+        iframe.style.position = 'absolute';
+        iframe.style.top = '0';
+        iframe.style.left = '0';
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframe.referrerPolicy = 'origin';
+
+        // Montar a estrutura do player
+        aspectRatio.appendChild(iframe);
+        wrapper.appendChild(aspectRatio);
+        containerRef.current.appendChild(wrapper);
+
+        // Carregar o script do SmartPlayer
+        if (!document.querySelector('script[data-id="6759dd77d07a5ff5c7ca43f4"]')) {
+          const script = document.createElement('script');
+          script.src = 'https://scripts.converteai.net/lib/js/smartplayer/v1/sdk.min.js';
+          script.setAttribute('data-id', '6759dd77d07a5ff5c7ca43f4');
+          document.head.appendChild(script);
+          scriptRef.current = script;
+        }
         
-        // Adicionar o iframe ao container
-        containerRef.current.appendChild(iframe);
-        iframeRef.current = iframe;
         playerLoaded.current = true;
-        
-        // Adicionar evento para monitorar quando o vídeo estiver pronto
-        window.addEventListener('message', handleVideoMessage);
       } catch (error) {
         console.error('Erro ao carregar o player de vídeo:', error);
-      }
-    };
-    
-    // Função para lidar com mensagens do iframe do vídeo
-    const handleVideoMessage = (event) => {
-      // Verificar se a mensagem é do player de vídeo
-      if (event.data && typeof event.data === 'object' && event.data.type === 'converteai') {
-        // Aqui você pode reagir a eventos do player
-        // Por exemplo: event.data.action === 'video:start'
       }
     };
     
@@ -103,7 +108,6 @@ const VideoPlayerWrapper = memo(function VideoPlayerWrapper() {
       
       return () => {
         observer.disconnect();
-        window.removeEventListener('message', handleVideoMessage);
       };
     } else {
       // Fallback para navegadores que não suportam IntersectionObserver
@@ -120,10 +124,6 @@ const VideoPlayerWrapper = memo(function VideoPlayerWrapper() {
         // Fallback caso a função não esteja disponível
         setTimeout(loadVideoPlayer, 1000);
       }
-      
-      return () => {
-        window.removeEventListener('message', handleVideoMessage);
-      };
     }
   }, []);
 

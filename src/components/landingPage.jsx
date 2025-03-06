@@ -75,9 +75,9 @@ const Footer = memo(() => (
       <span>Copyright © 2025 - Todos os direitos reservados.</span>
     </p>
     <div className={styles.footerLinks}>
-      <a href="/cf1/terms" aria-label="Termos e Condições">Termos e Condições</a>
+      <a href="/cf2/terms" aria-label="Termos e Condições">Termos e Condições</a>
       <span>|</span>
-      <a href="/cf1/privacy" aria-label="Política de Privacidade">Política de Privacidade</a>
+      <a href="/cf2/privacy" aria-label="Política de Privacidade">Política de Privacidade</a>
     </div>
   </div>
 ));
@@ -118,7 +118,8 @@ const LandingPage = memo(function LandingPage() {
     // Pré-carregar recursos críticos com prioridade
     const preloadCriticalResources = () => {
       const resources = [
-        { href: 'https://scripts.converteai.net/9f42948f-1e82-4960-b793-0f0c80350dc8/players/6759dd77d07a5ff5c7ca43f4/embed.html', as: 'document', rel: 'preload' }
+        { href: 'https://scripts.converteai.net/9f42948f-1e82-4960-b793-0f0c80350dc8/players/6759dd77d07a5ff5c7ca43f4/embed.html', as: 'document', rel: 'preload' },
+        { href: 'https://scripts.converteai.net/lib/js/smartplayer/v1/sdk.min.js', as: 'script', rel: 'preload' }
       ];
       
       const fragment = document.createDocumentFragment();
