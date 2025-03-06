@@ -36,11 +36,13 @@ export function middleware(request: NextRequest) {
     response.headers.set(key, value);
   });
 
-  // Configuração de CORS para o visitorapi
-  if (request.nextUrl.pathname.startsWith('/api/')) {
+  // Configuração de CORS para o visitorapi e converteai
+  if (request.nextUrl.pathname.startsWith('/api/') || 
+      request.nextUrl.pathname.includes('converteai.net')) {
     response.headers.set('Access-Control-Allow-Origin', '*');
-    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    response.headers.set('Access-Control-Allow-Credentials', 'true');
   }
 
   // Cache-Control para recursos estáticos

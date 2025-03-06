@@ -5,4 +5,4 @@ export const viewport = {
 
 export default function Layout({ children }) {
   return children;
-} 
+}

@@ -1,5 +1,6 @@
 import LandingPage from '../../components/landingPage';
 import { Suspense } from 'react';
+import ClientExitPopupWrapper from '../../components/ClientExitPopupWrapper';
 
 // Metadados estáticos para a página
 export const metadata = {
@@ -43,8 +44,13 @@ const PageLoading = () => (
 
 export default function Page() {
   return (
-    <Suspense fallback={<PageLoading />}>
-      <LandingPage />
-    </Suspense>
+    <>
+      <Suspense fallback={<PageLoading />}>
+        <LandingPage />
+      </Suspense>
+      
+      {/* Componente de Exit Popup */}
+      <ClientExitPopupWrapper />
+    </>
   );
 } 

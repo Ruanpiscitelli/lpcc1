@@ -5,6 +5,7 @@ import Link from 'next/link';
 import styles from '../styles/LandingPage.module.css';
 import { optimizeBFCache } from '../utils/performance-utils';
 import VideoPlayer from './VideoPlayerWrapper';
+import { loadScriptWithFallback } from '../utils/fallback-scripts';
 
 // Lazy loading para componentes não críticos
 const FooterAccordion = lazy(() => import('./FooterAccordion'));
@@ -146,10 +147,16 @@ const LandingPage = memo(function LandingPage() {
       
       // Carregar lazysizes de forma otimizada
       if (!document.querySelector('script[src*="lazysizes"]')) {
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.3.2/lazysizes.min.js';
-        script.async = true;
-        document.body.appendChild(script);
+        loadScriptWithFallback(
+          'https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.3.2/lazysizes.min.js',
+          {
+            async: true,
+            crossOrigin: "anonymous",
+            referrerPolicy: "origin"
+          },
+          () => console.log('Lazysizes carregado com sucesso'),
+          (error) => console.error('Falha ao carregar lazysizes:', error)
+        );
       }
     };
     

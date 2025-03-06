@@ -1,0 +1,66 @@
+---
+import SimpleConverteaiPlayerAstro, { ConverteaiHeadTags } from '../components/SimpleConverteaiPlayerAstro';
+import Layout from '../layouts/Layout.astro';
+
+// ID do player e da conta (podem ser passados por props)
+const playerId = '67c39663c033d97a19fff443';
+const accountId = '9f42948f-1e82-4960-b793-0f0c80350dc8';
+---
+
+<Layout title="Exemplo de Vídeo - Astro">
+  <head>
+    <!-- Adiciona todas as tags de otimização -->
+    <ConverteaiHeadTags playerId={playerId} accountId={accountId} client:load />
+  </head>
+  
+  <main class="container mx-auto px-4 py-8 max-w-4xl">
+    <h1 class="text-3xl font-bold text-center mb-6">
+      Exemplo de Vídeo no Astro
+    </h1>
+    
+    <!-- Player de vídeo com carregamento otimizado -->
+    <SimpleConverteaiPlayerAstro 
+      playerId={playerId}
+      accountId={accountId}
+      className="my-8 rounded-lg shadow-lg overflow-hidden"
+      client:visible
+    />
+    
+    <div class="mt-8 prose lg:prose-xl">
+      <h2>Como usar este componente no Astro</h2>
+      <p>
+        Este componente foi projetado especificamente para funcionar com Astro, aproveitando suas 
+        funcionalidades para otimizar a performance:
+      </p>
+      
+      <ul class="list-disc ml-6 mt-4">
+        <li>Use <code>client:visible</code> para carregar o player somente quando ele estiver visível</li>
+        <li>As otimizações de pré-carregamento são gerenciadas pelo componente <code>ConverteaiHeadTags</code></li>
+        <li>Integração simplificada com o SDK da Converteai</li>
+        <li>Suporte a estilos personalizados via className</li>
+      </ul>
+      
+      <p class="mt-4">
+        A principal vantagem é que não é preciso se preocupar com problemas de CSP ou CORS, pois
+        o componente já gerencia esses aspectos de forma transparente.
+      </p>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .container {
+    max-width: 800px;
+  }
+  
+  h1 {
+    margin: 2rem 0;
+  }
+  
+  code {
+    background-color: #f4f4f4;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.2rem;
+    font-family: monospace;
+  }
+</style> 

@@ -13,8 +13,8 @@ const SESSION_DURATION = 30000; // 30 segundos na página
 const DesktopExitPopup = () => {
   const pathname = usePathname();
   
-  // Se não estiver na página correta, retorna null imediatamente
-  if (pathname !== '/cf1-escrito') return null;
+  // Se não estiver nas páginas corretas, retorna null imediatamente
+  if (pathname !== '/cf1-escrito' && pathname !== '/cf2') return null;
   
   const [showPopup, setShowPopup] = useState(false);
   const [hasShownPopup, setHasShownPopup] = useState(false);

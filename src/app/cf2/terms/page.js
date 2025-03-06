@@ -49,7 +49,7 @@ export default function TermsPage() {
           </div>
           
           <div style={{ marginTop: '40px', textAlign: 'center' }}>
-            <Link href="/cf2" style={{ display: 'inline-block', padding: '10px 20px', background: '#d20000', color: 'white', textDecoration: 'none', borderRadius: '4px', fontWeight: 'bold' }}>
+            <Link href="/cf1" style={{ display: 'inline-block', padding: '10px 20px', background: '#d20000', color: 'white', textDecoration: 'none', borderRadius: '4px', fontWeight: 'bold' }}>
               Voltar para a página inicial
             </Link>
           </div>
@@ -57,4 +57,4 @@ export default function TermsPage() {
       </div>
     </div>
   );
-} 
+}

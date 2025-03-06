@@ -22,10 +22,10 @@ const nextConfig = {
           { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-          // Adicionar Content-Security-Policy mais permissiva
+          // Configuração de CSP mais permissiva
           { 
             key: 'Content-Security-Policy', 
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://scripts.converteai.net https://cdn.converteai.net; connect-src 'self' https://scripts.converteai.net https://cdn.converteai.net https://images.converteai.net; img-src 'self' data: https://images.converteai.net https://cdn.converteai.net; style-src 'self' 'unsafe-inline'; frame-src 'self' https://scripts.converteai.net https://cdn.converteai.net;" 
+            value: "default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://scripts.converteai.net https://cdn.converteai.net https://*.googleapis.com https://*.googletagmanager.com https://*.google-analytics.com https://*.facebook.net https://connect.facebook.net; connect-src 'self' https: wss:; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com; frame-src 'self' https: blob:; media-src 'self' https: blob:; object-src 'none';" 
           }
         ],
       },
@@ -39,8 +39,12 @@ const nextConfig = {
 
   // Otimizar carregamento de imagens remotas
   images: {
-    domains: ['images.converteai.net', 'cdn.converteai.net', 'scripts.converteai.net'],
-    formats: ['image/webp'],
+    formats: ['image/avif', 'image/webp'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    minimumCacheTTL: 60 * 60 * 24 * 30,
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     remotePatterns: [
       {
         protocol: 'https',
@@ -57,11 +61,45 @@ const nextConfig = {
         hostname: 'scripts.converteai.net',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'cdnjs.cloudflare.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'fonts.googleapis.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'fonts.gstatic.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.googletagmanager.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.google-analytics.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.facebook.net',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
     ],
   },
   
   // Webpack para resolver problemas de build
-  webpack(config, { isServer }) {
+  webpack(config, { isServer, dev }) {
     // Adicionar suporte para scripts externos
     if (!isServer) {
       config.resolve.fallback = {
@@ -70,6 +108,32 @@ const nextConfig = {
         net: false,
         tls: false,
       };
+    }
+    
+    // Otimizações apenas para produção
+    if (!dev && !isServer) {
+      // Otimizações de bundle
+      config.optimization = {
+        ...config.optimization,
+        runtimeChunk: 'single',
+        splitChunks: {
+          chunks: 'all',
+          maxInitialRequests: 25,
+          minSize: 20000,
+        },
+      };
+
+      // Adiciona Compression Plugin
+      config.plugins.push(
+        new CompressionPlugin({
+          filename: '[path][base].br',
+          algorithm: 'brotliCompress',
+          test: /\.(js|css|html|svg)$/,
+          compressionOptions: { level: 11 },
+          threshold: 10240,
+          minRatio: 0.8,
+        })
+      );
     }
     
     return config;
@@ -100,53 +164,6 @@ const nextConfig = {
     autoPrerender: false,
     indicator: false,
     showRemovedTargets: false,
-  },
-
-  // Otimizações de Imagem
-  images: {
-    formats: ['image/avif', 'image/webp'],
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    minimumCacheTTL: 60 * 60 * 24 * 30,
-    dangerouslyAllowSVG: true,
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '**',
-      },
-    ],
-  },
-
-  // Otimização de webpack
-  webpack: (config, { dev, isServer }) => {
-    // Otimizações apenas para produção
-    if (!dev && !isServer) {
-      // Otimizações de bundle
-      config.optimization = {
-        ...config.optimization,
-        runtimeChunk: 'single',
-        splitChunks: {
-          chunks: 'all',
-          maxInitialRequests: 25,
-          minSize: 20000,
-        },
-      };
-
-      // Adiciona Compression Plugin
-      config.plugins.push(
-        new CompressionPlugin({
-          filename: '[path][base].br',
-          algorithm: 'brotliCompress',
-          test: /\.(js|css|html|svg)$/,
-          compressionOptions: { level: 11 },
-          threshold: 10240,
-          minRatio: 0.8,
-        })
-      );
-    }
-
-    return config;
   },
 };
 

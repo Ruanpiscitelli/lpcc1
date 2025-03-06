@@ -2,11 +2,14 @@
 
 import React, { useEffect, useRef, memo, useState } from 'react';
 import styles from '../styles/VideoPlayer.module.css';
+import { loadScriptWithFallback } from '../utils/fallback-scripts';
 
 // Componente otimizado para o player de vídeo
 const VideoPlayerWrapper = memo(function VideoPlayerWrapper() {
   const containerRef = useRef(null);
   const playerLoaded = useRef(false);
+  const retryCount = useRef(0);
+  const maxRetries = 3;
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
   const [errorDetails, setErrorDetails] = useState('');
@@ -29,11 +32,14 @@ const VideoPlayerWrapper = memo(function VideoPlayerWrapper() {
         { rel: 'dns-prefetch', href: 'https://scripts.converteai.net' },
         { rel: 'dns-prefetch', href: 'https://cdn.converteai.net' },
         { rel: 'dns-prefetch', href: 'https://images.converteai.net' }
-        // Removido o preload do script para evitar carregamento duplicado
       ];
       
       resources.forEach(resource => {
         try {
+          // Verificar se o link já existe para evitar duplicações
+          const existingLink = document.querySelector(`link[rel="${resource.rel}"][href="${resource.href}"]`);
+          if (existingLink) return;
+          
           const link = document.createElement('link');
           Object.entries(resource).forEach(([key, value]) => {
             link[key] = value;
@@ -65,47 +71,68 @@ const VideoPlayerWrapper = memo(function VideoPlayerWrapper() {
           return;
         }
         
-        // Carrega o script SDK diretamente
-        const script = document.createElement('script');
-        script.src = "https://scripts.converteai.net/lib/js/smartplayer/v1/sdk.min.js";
-        script.async = true;
-        script.crossOrigin = "anonymous"; // Adicionar crossorigin
+        // Verificar se já existe um script sendo carregado
+        const scriptUrl = "/scripts/converteai/lib/js/smartplayer/v1/sdk.min.js";
+        const existingScript = document.querySelector(`script[src*="${scriptUrl}"]`);
+        if (existingScript) {
+          console.log('SDK já está sendo carregado, aguardando...');
+          existingScript.onload = createIframe;
+          return;
+        }
         
-        script.onload = () => {
-          console.log('SDK carregado com sucesso');
-          createIframe();
-        };
-        
-        script.onerror = (e) => {
-          console.error('Erro ao carregar SDK:', e);
-          // Capturar mais detalhes do erro
-          const errorInfo = {
-            message: e?.message || 'Erro desconhecido',
-            type: e?.type || 'unknown',
-            target: e?.target?.src || 'unknown source'
-          };
-          setErrorDetails(JSON.stringify(errorInfo, null, 2));
-          setLoadError(true);
-          setIsLoading(false);
-        };
-        
-        document.head.appendChild(script);
-      } catch (err) {
-        console.error('Erro ao carregar player:', err);
-        setErrorDetails(err?.message || 'Erro desconhecido');
+        // Usar o sistema de fallback para carregar o script
+        loadScriptWithFallback(
+          scriptUrl,
+          {
+            async: true,
+            defer: true,
+            crossOrigin: "anonymous",
+            referrerPolicy: "origin",
+            importance: "high",
+            fetchPriority: 'fetchPriority' in HTMLScriptElement.prototype ? "high" : undefined
+          },
+          createIframe,
+          (error) => {
+            console.error('Erro ao carregar o SDK do Converteai:', error);
+            setErrorDetails(JSON.stringify({
+              message: error?.message || 'Erro desconhecido',
+              type: 'SDK Load Error',
+              source: 'scripts.converteai.net'
+            }));
+            setLoadError(true);
+          }
+        );
+      } catch (error) {
+        console.error('Erro ao iniciar carregamento do player:', error);
+        setErrorDetails(JSON.stringify({
+          message: error?.message || 'Erro desconhecido',
+          type: 'Load Error',
+          source: 'VideoPlayerWrapper'
+        }));
         setLoadError(true);
-        setIsLoading(false);
       }
     };
     
     // Função para criar o iframe
     const createIframe = () => {
       try {
+        console.log('Criando iframe para o player...');
+        
+        // Verificar se o iframe já existe
+        const existingIframe = document.getElementById('ifr_67c39663c033d97a19fff443');
+        if (existingIframe) {
+          console.log('Iframe já existe, usando existente');
+          setIsLoading(false);
+          playerLoaded.current = true;
+          return;
+        }
+        
         // Criando o iframe diretamente
         const iframe = document.createElement('iframe');
         iframe.id = 'ifr_67c39663c033d97a19fff443';
         iframe.frameBorder = '0';
         iframe.allowFullscreen = true;
+        iframe.allow = "autoplay; encrypted-media; fullscreen; picture-in-picture";
         iframe.src = 'https://scripts.converteai.net/9f42948f-1e82-4960-b793-0f0c80350dc8/players/67c39663c033d97a19fff443/embed.html';
         iframe.style.position = 'absolute';
         iframe.style.top = '0';
@@ -113,6 +140,8 @@ const VideoPlayerWrapper = memo(function VideoPlayerWrapper() {
         iframe.style.width = '100%';
         iframe.style.height = '100%';
         iframe.referrerPolicy = 'origin';
+        iframe.loading = 'eager';
+        iframe.importance = 'high';
         
         // Detectar quando o iframe terminar de carregar
         iframe.onload = () => {
@@ -128,8 +157,15 @@ const VideoPlayerWrapper = memo(function VideoPlayerWrapper() {
             type: e?.type || 'unknown',
             target: e?.target?.src || 'unknown source'
           }, null, 2));
-          setLoadError(true);
-          setIsLoading(false);
+          
+          if (retryCount.current < maxRetries) {
+            retryCount.current += 1;
+            console.log(`Tentativa de iframe ${retryCount.current} de ${maxRetries}...`);
+            setTimeout(createIframe, 1000 * retryCount.current);
+          } else {
+            setLoadError(true);
+            setIsLoading(false);
+          }
         };
         
         // Limpa conteúdo existente e adiciona iframe
@@ -152,7 +188,16 @@ const VideoPlayerWrapper = memo(function VideoPlayerWrapper() {
     };
     
     // Carrega o player após um pequeno delay para garantir que o DOM está pronto
-    const timerRef = setTimeout(loadPlayer, 300);
+    const timerRef = setTimeout(() => {
+      try {
+        loadPlayer();
+      } catch (e) {
+        console.error('Erro ao iniciar carregamento:', e);
+        setErrorDetails(e?.message || 'Erro ao iniciar carregamento');
+        setLoadError(true);
+        setIsLoading(false);
+      }
+    }, 300);
     
     // Cleanup
     return () => {
@@ -167,6 +212,7 @@ const VideoPlayerWrapper = memo(function VideoPlayerWrapper() {
     setIsLoading(true);
     setErrorDetails('');
     playerLoaded.current = false;
+    retryCount.current = 0;
     
     // Usar uma abordagem diferente para recarregar o player
     try {

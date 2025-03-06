@@ -56,7 +56,7 @@ export default function Error({ error, reset }) {
         </button>
         
         <Link 
-          href="/cf2" 
+          href="/cf1" 
           style={{
             backgroundColor: '#333',
             color: 'white',
@@ -72,4 +72,4 @@ export default function Error({ error, reset }) {
       </div>
     </div>
   );
-} 
+}
