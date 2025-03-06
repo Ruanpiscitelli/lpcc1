@@ -21,7 +21,12 @@ const nextConfig = {
           { key: 'X-DNS-Prefetch-Control', value: 'on' },
           { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
-          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' }
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          // Adicionar Content-Security-Policy mais permissiva
+          { 
+            key: 'Content-Security-Policy', 
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://scripts.converteai.net https://cdn.converteai.net; connect-src 'self' https://scripts.converteai.net https://cdn.converteai.net https://images.converteai.net; img-src 'self' data: https://images.converteai.net https://cdn.converteai.net; style-src 'self' 'unsafe-inline'; frame-src 'self' https://scripts.converteai.net https://cdn.converteai.net;" 
+          }
         ],
       },
     ]
@@ -36,10 +41,37 @@ const nextConfig = {
   images: {
     domains: ['images.converteai.net', 'cdn.converteai.net', 'scripts.converteai.net'],
     formats: ['image/webp'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.converteai.net',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.converteai.net',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'scripts.converteai.net',
+        pathname: '/**',
+      },
+    ],
   },
   
   // Webpack para resolver problemas de build
-  webpack(config) {
+  webpack(config, { isServer }) {
+    // Adicionar suporte para scripts externos
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
+    }
+    
     return config;
   },
 
@@ -55,7 +87,9 @@ const nextConfig = {
   // Otimização para produção
   swcMinify: true,
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn'],
+    } : false,
   },
 
   // Desabilitar indicadores de desenvolvimento

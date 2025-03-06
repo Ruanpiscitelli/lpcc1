@@ -21,3 +21,21 @@
 
 [build.processing.images]
   compress = true
+
+# Configurações para suporte a slugs dinâmicos
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/next"
+  status = 200
+
+# Regra específica para parâmetros dinâmicos em URLs
+[[redirects]]
+  from = "/:slug"
+  to = "/.netlify/functions/next"
+  status = 200
+
+# Configuração de headers permissivos
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
