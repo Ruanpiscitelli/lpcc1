@@ -47,13 +47,18 @@ const VideoPlayerWrapper = memo(function VideoPlayerWrapper() {
         // Criar a estrutura do player conforme fornecido
         const wrapper = document.createElement('div');
         wrapper.id = 'ifr_6759dd77d07a5ff5c7ca43f4_wrapper';
-        wrapper.style.margin = '0 auto';
+        wrapper.style.position = 'absolute';
+        wrapper.style.top = '0';
+        wrapper.style.left = '0';
         wrapper.style.width = '100%';
+        wrapper.style.height = '100%';
+        wrapper.style.margin = '0';
 
         const aspectRatio = document.createElement('div');
         aspectRatio.id = 'ifr_6759dd77d07a5ff5c7ca43f4_aspect';
-        aspectRatio.style.padding = '56.25% 0 0 0';
         aspectRatio.style.position = 'relative';
+        aspectRatio.style.width = '100%';
+        aspectRatio.style.height = '100%';
 
         const iframe = document.createElement('iframe');
         iframe.id = 'ifr_6759dd77d07a5ff5c7ca43f4';
@@ -128,7 +133,15 @@ const VideoPlayerWrapper = memo(function VideoPlayerWrapper() {
   }, []);
 
   return (
-    <div className={styles.videoContainer} ref={containerRef}>
+    <div className={styles.videoContainer} ref={containerRef} style={{
+      position: 'absolute',
+      top: '0',
+      left: '0',
+      width: '100%',
+      height: '100%',
+      borderRadius: '8px',
+      overflow: 'hidden'
+    }}>
       {/* Placeholder que será substituído pelo iframe */}
       <div className={styles.videoPlaceholder}>
         <div className={styles.loadingSpinner}>

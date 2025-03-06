@@ -249,6 +249,9 @@
   margin: 20px auto 0; /* Reduzido de 25px para 20px */
   position: relative;
   background-color: transparent;
+  /* Adicionando padding-bottom para manter a proporção 16:9 consistente */
+  height: 0;
+  padding-bottom: 56.25%;
 }
 
 .containerWrapper {
