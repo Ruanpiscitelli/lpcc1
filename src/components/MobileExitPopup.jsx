@@ -6,29 +6,67 @@ import Link from 'next/link';
 import styles from '../styles/MobileExitPopup.module.css';
 
 // Configurações do exit intent para mobile
-const SCROLL_THRESHOLD = 50; // Distância de scroll para cima para acionar o popup
+const SCROLL_THRESHOLD = 40; // Reduzido para maior sensibilidade
 const INACTIVITY_THRESHOLD = 30000; // 30 segundos de inatividade
 const SESSION_DURATION = 45000; // 45 segundos na página
+const POPUP_COOLDOWN = 24 * 60 * 60 * 1000; // 24 horas em milissegundos
 
 const MobileExitPopup = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [hasShownPopup, setHasShownPopup] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [popupStyle, setPopupStyle] = useState("overlay"); // "overlay" ou "bottomBanner"
   const lastScrollY = useRef(0);
+  const scrollVelocity = useRef(0);
+  const lastScrollTime = useRef(Date.now());
   const lastActivityTime = useRef(Date.now());
   const sessionStartTime = useRef(Date.now());
   const popupRef = useRef(null);
   const scrollTimerRef = useRef(null);
   const inactivityTimerRef = useRef(null);
   const sessionTimerRef = useRef(null);
+  const previousScrollRef = useRef(0);
 
-  // Verificar se o popup já foi mostrado nesta sessão
+  // Verificar se o popup já foi mostrado recentemente (com localStorage para persistência)
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setMounted(true);
-      const hasShown = sessionStorage.getItem('exitPopupShown') === 'true';
-      setHasShownPopup(hasShown);
+      
+      // Verificar exibição na sessão atual
+      const hasShownInSession = sessionStorage.getItem('exitPopupShown') === 'true';
+      
+      // Verificar cooldown (em localStorage para persistir entre sessões)
+      const lastShownTime = localStorage.getItem('exitPopupLastShown');
+      const now = Date.now();
+      
+      // Se já foi mostrado nas últimas 24 horas, não mostrar novamente
+      const isInCooldownPeriod = lastShownTime && (now - parseInt(lastShownTime) < POPUP_COOLDOWN);
+      
+      setHasShownPopup(hasShownInSession || isInCooldownPeriod);
+      
+      // Determinar tipo de popup baseado na altura da tela
+      // Para telas menores, usar bottomBanner
+      if (window.innerHeight < 700) {
+        setPopupStyle("bottomBanner");
+      }
+      
+      // Configurar listener para o botão voltar
+      configureBackButtonDetection();
     }
+  }, []);
+  
+  // Detectar uso do botão voltar
+  const configureBackButtonDetection = useCallback(() => {
+    // Salvar o estado atual da navegação
+    window.history.pushState(null, document.title, window.location.href);
+    
+    // Quando o usuário pressionar voltar, mostrar popup e prevenir navegação
+    window.addEventListener('popstate', (e) => {
+      // Prevenir navegação real
+      window.history.pushState(null, document.title, window.location.href);
+      // Mostrar popup
+      showExitPopup();
+    });
   }, []);
 
   // Função para mostrar o popup
@@ -38,18 +76,22 @@ const MobileExitPopup = () => {
       setHasShownPopup(true);
       sessionStorage.setItem('exitPopupShown', 'true');
       
+      // Salvar timestamp no localStorage para limitar frequência
+      localStorage.setItem('exitPopupLastShown', Date.now().toString());
+      
       // Registrar evento de analytics (se disponível)
       if (window.gtag) {
         window.gtag('event', 'exit_popup_shown', {
           'event_category': 'Engagement',
-          'event_label': 'Mobile Exit Popup'
+          'event_label': 'Mobile Exit Popup',
+          'popup_style': popupStyle
         });
       }
       
       // Limpar todos os timers quando o popup é mostrado
       clearAllTimers();
     }
-  }, [hasShownPopup, mounted]);
+  }, [hasShownPopup, mounted, popupStyle]);
 
   // Limpar todos os timers
   const clearAllTimers = () => {
@@ -66,7 +108,8 @@ const MobileExitPopup = () => {
     if (window.gtag) {
       window.gtag('event', 'exit_popup_action', {
         'event_category': 'Engagement',
-        'event_label': action
+        'event_label': action,
+        'popup_style': popupStyle
       });
     }
   };
@@ -83,19 +126,29 @@ const MobileExitPopup = () => {
   // Detectar scroll rápido para cima (comportamento de saída em dispositivos móveis)
   const handleScroll = useCallback(() => {
     const currentScrollY = window.scrollY;
+    const currentTime = Date.now();
+    const timeDelta = currentTime - lastScrollTime.current;
+    
+    // Calcular velocidade de scroll (pixels/ms)
+    if (timeDelta > 0) {
+      scrollVelocity.current = Math.abs(currentScrollY - lastScrollY.current) / timeDelta;
+    }
     
     // Atualizar o tempo da última atividade
-    lastActivityTime.current = Date.now();
+    lastActivityTime.current = currentTime;
+    lastScrollTime.current = currentTime;
     
     // Limpar o timer existente
     if (scrollTimerRef.current) {
       clearTimeout(scrollTimerRef.current);
     }
     
-    // Verificar se o usuário está rolando rapidamente para cima
-    if (currentScrollY < lastScrollY.current && 
-        lastScrollY.current - currentScrollY > SCROLL_THRESHOLD && 
-        currentScrollY < 300) {
+    // Verificar se o usuário está rolando rapidamente para cima no topo da página
+    if (currentScrollY < previousScrollRef.current && 
+        previousScrollRef.current - currentScrollY > SCROLL_THRESHOLD && 
+        currentScrollY < 200 &&
+        scrollVelocity.current > 0.5) { // Verifica se a rolagem é rápida o suficiente
+      
       scrollTimerRef.current = setTimeout(() => {
         showExitPopup();
       }, 100);
@@ -112,6 +165,7 @@ const MobileExitPopup = () => {
       }, 500);
     }
     
+    previousScrollRef.current = currentScrollY;
     lastScrollY.current = currentScrollY;
   }, [showExitPopup]);
 
@@ -162,10 +216,22 @@ const MobileExitPopup = () => {
         document.addEventListener(event, handleUserActivity, { passive: true });
       });
       
+      // Orientação da tela (detectar mudança de orientação)
+      window.addEventListener('orientationchange', () => {
+        // Geralmente, mudar a orientação do dispositivo indica que o usuário está engajado
+        // mas pode ser um bom momento para mostrar o popup
+        setTimeout(() => {
+          if (Math.random() > 0.5) { // 50% de chance de mostrar na mudança de orientação
+            showExitPopup();
+          }
+        }, 1000);
+      });
+      
       // Limpar event listeners
       return () => {
         window.removeEventListener('scroll', handleScroll);
         document.removeEventListener('visibilitychange', handleVisibilityChange);
+        window.removeEventListener('orientationchange', showExitPopup);
         
         ['touchstart', 'touchmove', 'click', 'keydown'].forEach(event => {
           document.removeEventListener(event, handleUserActivity);
@@ -181,7 +247,8 @@ const MobileExitPopup = () => {
     handleVisibilityChange,
     handleUserActivity,
     checkInactivity,
-    checkSessionDuration
+    checkSessionDuration,
+    showExitPopup
   ]);
 
   // Lidar com clique fora do popup para fechá-lo
@@ -206,51 +273,116 @@ const MobileExitPopup = () => {
   // Não renderizar nada no servidor
   if (!mounted) return null;
 
+  // Determinar qual componente renderizar baseado no estilo selecionado
+  const renderPopupContent = () => {
+    // Conteúdo personalizado baseado na URL atual
+    const getPopupContent = () => {
+      const currentPath = window.location.pathname;
+      
+      if (currentPath.includes('/produtos')) {
+        return {
+          title: "Espere! Produtos com 15% de desconto!",
+          subtitle: "Oferta exclusiva para você",
+          message: "Aproveite esta oferta exclusiva antes de sair."
+        };
+      } else if (currentPath.includes('/blog')) {
+        return {
+          title: "Gostou do Conteúdo?",
+          subtitle: "Tem muito mais!",
+          message: "Assine nossa newsletter para receber artigos exclusivos."
+        };
+      }
+      
+      // Conteúdo padrão
+      return {
+        title: "Espere!",
+        subtitle: "Temos uma oferta especial para você",
+        message: "Antes de sair, queremos oferecer um desconto exclusivo só para você."
+      };
+    };
+    
+    const content = getPopupContent();
+    
+    if (popupStyle === "bottomBanner") {
+      // Versão banner para uma experiência menos intrusiva
+      return (
+        <div className={styles.bottomBanner} ref={popupRef}>
+          <button 
+            className={styles.closeButtonBanner} 
+            onClick={() => closePopup('clicked_close')}
+            aria-label="Fechar popup"
+          >
+            ×
+          </button>
+          
+          <div className={styles.bannerContent}>
+            <div className={styles.bannerText}>
+              <h3 className={styles.bannerTitle}>{content.title}</h3>
+              <p>{content.message}</p>
+            </div>
+            
+            <button 
+              className={styles.bannerButton} 
+              onClick={handleDiscountClick}
+            >
+              APROVEITAR
+            </button>
+          </div>
+        </div>
+      );
+    } else {
+      // Versão overlay original
+      return (
+        <div className={styles.exitPopupOverlay}>
+          <div className={styles.exitPopupContent} ref={popupRef}>
+            <button 
+              className={styles.closeButton} 
+              onClick={() => closePopup('clicked_close')}
+              aria-label="Fechar popup"
+            >
+              ×
+            </button>
+            
+            <div className={styles.popupHeader}>
+              <h2 className={styles.exitPopupTitle}>{content.title}</h2>
+              <h3 className={styles.exitPopupSubtitle}>{content.subtitle}</h3>
+            </div>
+            
+            <div className={styles.exitPopupText}>
+              <p>{content.message}</p>
+              
+              <div className={styles.offerHighlight}>
+                <span className={styles.discount}>20% OFF</span>
+                <p>Em sua primeira compra</p>
+                <span className={styles.timeLimit}>Válido por 24 horas</span>
+              </div>
+              
+              <p>Aproveite esta oportunidade única para experimentar nosso produto com um desconto especial!</p>
+            </div>
+            
+            <div className={styles.exitPopupButtons}>
+              <button 
+                className={styles.continueButton} 
+                onClick={handleDiscountClick}
+              >
+                Quero aproveitar o desconto!
+              </button>
+              <button 
+                className={styles.noThanksButton} 
+                onClick={() => closePopup('declined_offer')}
+              >
+                Não, obrigado
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+  };
+
   // Renderizar o popup usando createPortal para garantir que ele seja renderizado no body
   return showPopup ? createPortal(
-    <div className={styles.exitPopupOverlay}>
-      <div className={styles.exitPopupContent} ref={popupRef}>
-        <button 
-          className={styles.closeButton} 
-          onClick={() => closePopup('clicked_close')}
-          aria-label="Fechar popup"
-        >
-          ×
-        </button>
-        
-        <div className={styles.popupHeader}>
-          <h2 className={styles.exitPopupTitle}>Espere!</h2>
-          <h3 className={styles.exitPopupSubtitle}>Temos uma oferta especial para você</h3>
-        </div>
-        
-        <div className={styles.exitPopupText}>
-          <p>Antes de sair, queremos oferecer um desconto exclusivo só para você.</p>
-          
-          <div className={styles.offerHighlight}>
-            <span className={styles.discount}>20% OFF</span>
-            <p>Em sua primeira compra</p>
-            <span className={styles.timeLimit}>Válido por 24 horas</span>
-          </div>
-          
-          <p>Aproveite esta oportunidade única para experimentar nosso produto com um desconto especial!</p>
-        </div>
-        
-        <div className={styles.exitPopupButtons}>
-          <button 
-            className={styles.continueButton} 
-            onClick={handleDiscountClick}
-          >
-            Quero aproveitar o desconto!
-          </button>
-          <button 
-            className={styles.noThanksButton} 
-            onClick={() => closePopup('declined_offer')}
-          >
-            Não, obrigado
-          </button>
-        </div>
-      </div>
-    </div>,
+    renderPopupContent(),
     document.body
   ) : null;
 };
